@@ -36,7 +36,10 @@ public class CompanyMergeHistory_Total {
 	private String CompanyName_New;
 	@Column(name = "CompanyID_Old", columnDefinition = "VARCHAR(50)")
 	private String CompanyID_Old;
-	
+	@Column(name = "oldsalesman", columnDefinition = "VARCHAR(50)")
+	private String oldSalesman;
+	@Column(name = "newsalesman", columnDefinition = "VARCHAR(50)")
+	private String newSalesman;
 	
 
 	
@@ -58,6 +61,19 @@ public class CompanyMergeHistory_Total {
     private Set<CompanyMergeHistory> comMergeHistory = new HashSet<>();
 
 	
+    
+	public String getOldSalesman() {
+		return oldSalesman;
+	}
+	public void setOldSalesman(String oldSalesman) {
+		this.oldSalesman = oldSalesman;
+	}
+	public String getNewSalesman() {
+		return newSalesman;
+	}
+	public void setNewSalesman(String newSalesman) {
+		this.newSalesman = newSalesman;
+	}
 	public int getAutoID() {
 		return autoID;
 	}

@@ -155,10 +155,12 @@
                     <thead>
                     <tr>
                         <th width=12% class="center">合并时间</th>
-                        <th width=14% class="center">原客户（公司）ID</th>
-                        <th width=27% class="center">原客户（公司）名称</th>
-                        <th width=14% class="center">合并后客户（公司）ID</th>
-                        <th width=27% class="center">合并后客户（公司）名称</th>
+                        <th width=9% class="center">原客户ID</th>
+                        <th width=24% class="center">原客户名称</th>
+                        <th width=8% class="center">原销售</th>
+                        <th width=9% class="center">合并后客户ID</th>
+                        <th width=24% class="center">合并后客户名称</th>
+                        <th width=8% class="center">合并后销售</th>
                         <th width=6%  class="center">操作</th>
                     </tr>
                     </thead>
@@ -433,8 +435,10 @@ function refreshCompanyTable(){
 								data[ii]['creatime'],
 								data[ii]['companyID_Old'],
 								data[ii]['companyName_Old'],
+								data[ii]['oldSalesman'],
 								data[ii]['companyID_New'],
 								data[ii]['companyName_New'],
+								data[ii]['newSalesman'],
 								'<button  class="btn btn-danger btn-xs"  data-style="zoom-out" id="cpbtn'+ii+'" type="button" onclick="resumeCompany('+data[ii]['autoID']+',&#39;cpbtn'+ii+'&#39;);return false">还原</button>'
 								
 					        ] ).draw();
@@ -473,7 +477,6 @@ function refreshContactTable(){
 								data[ii]['contactID_New'],
 								data[ii]['contactName_New'],
 								data[ii]['companyName_New'],
-								
 								'<button  class="btn btn-danger btn-xs"  data-style="zoom-out" id="ctbtn'+ii+'" type="button" onclick="resumeContact('+data[ii]['autoID']+',&#39;ctbtn'+ii+'&#39;)">还原</button>'
 								
 					        ] ).draw();

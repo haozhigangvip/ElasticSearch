@@ -128,18 +128,20 @@
 												<table class="table table-bordered table-striped" id="oldCompanyList">
 													<thead>
 														<tr>
-															<th width="30%">comID</th>
+															<th width="20%">comID</th>
 															<th width="50%">客户名称</th>
-															<th width="20%" align="center">操作</th>
+															<th width="15%">所属销售</th>
+															<th width="15%" align="center">操作</th>
 														</tr>
 													</thead>
 													<tbody>
 														<tr></tr>
 														<c:forEach items="${sessionScope.SourceList}" var="row">
 															<tr>
-																<td width="30%">${row.comID}</td>
+																<td width="20%">${row.comID}</td>
 																<td width="50%">${row.companyname}</td>
-																<td width="20%" align="center">
+																<td width="15%">${row.csalesman}</td>
+																<td width="15%" align="center">
 																	<button class="btn btn-danger btn-xs"
 																		onclick="removeSession('${row.comID}','oldCompanyList')">移除</button>
 																</td>
@@ -178,6 +180,7 @@
 														<tr>
 															<th>comID</th>
 															<th>客户名称</th>
+															<th>所属销售</th>
 															<th style="text-align:center">操作</th>
 														</tr>
 													</thead>
@@ -185,9 +188,10 @@
 														<tr></tr>
 														<c:forEach items="${sessionScope.TargetList}" var="row">
 															<tr>
-																<td width="30%">${row.comID}</td>
+																<td width="20%">${row.comID}</td>
 																<td width="50%">${row.companyname}</td>
-																<td width="20%" align="center">
+																<td width="15%">${row.csalesman}</td>
+																<td width="15%" align="center">
 																	<button class="btn btn-danger btn-xs"
 																		onclick="removeSession('${row.comID}','newCompanyList')">移除</button>
 																</td>
@@ -303,8 +307,7 @@
 												</div>
 											</div>
 											<div class="activity-stream" id="tab2" >
-												<table class="table table-bordered table-striped"
-													id="newContactList">
+												<table class="table table-bordered table-striped" id="newContactList">
 													<thead>
 														<tr>
 															<th width="10%">contID</th>
@@ -405,9 +408,13 @@
 												}
 											} else {
 												for (var ii = 0, rr = data.length; ii < rr; ii++) {
+													var salesman="";
+													if(data[ii]['csalesman']!=null && data[ii]['csalesman']!="" ){
+														salesman="-"+data[ii]['csalesman'];
+													}
 													result.push(data[ii].comID
 																	+ "-"
-																	+ $.trim(data[ii].companyname));
+																	+ $.trim(data[ii].companyname)+salesman);
 												}
 											}
 											
@@ -416,22 +423,6 @@
 											});
 										};
 
-										var insertaccountOptions = function(
-												data, id) {
-
-											var result = new Array();
-											for (var ii = 0, rr = data.length; ii < rr; ii++) {
-												result
-														.push(data[ii]['comID']
-																+ "-"
-																+ data[ii]['companyname']);
-
-											}
-
-											$('#' + id).autocomplete({
-												source : result
-											});
-										};
 
 										$('#search_kw').keyup(function() {
 											getList("search_kw");
@@ -487,7 +478,7 @@
 											$("#" + tablekey).empty();
 
 											if(tablekey.indexOf('Contact')>0){
-												$("#" + tablekey).append('<tr><th width="10%">contID</th><th width="20%">联系人名称</th><th width="60%">公司名称</th><th width="10%" style="text-align:center">操作</th></tr>');
+												$("#" + tablekey).append('<thead><tr><th width="10%">contID</th><th width="20%">联系人名称</th><th width="60%">公司名称</th><th width="10%" style="text-align:center">操作</th></tr></thead><tr></tr>');
 												if(data!=null){
 													for (var i = 0; i < data.length; i++) {
 														var trHTML = '<tr ><td>'
@@ -513,13 +504,19 @@
  
 													}
 											}else{
-												$("#" + tablekey).append('<tr><th width="30%">comID</th><th width="50%">客户名称</th><th width="20%" style="text-align:center">操作</th></tr>');
+												$("#" + tablekey).append('<thead><tr><th width="20%">comID</th><th width="50%">客户名称</th><th width="15%">所属销售</th><th width="15%" style="text-align:center">操作</th></tr></thead><tr></tr>');
 												if(data!=null){
 													for (var i = 0; i < data.length; i++) {
+														var salesman='';
+														if(data[i].csalesman!=null){
+															salesman=data[i].csalesman ;
+														}
 														var trHTML = '<tr ><td>'
 																+ data[i].comID
 																+ '</td><td>'
 																+ data[i].companyname
+																+ '</td><td>'
+																+ salesman
 																+ '</td><td align="center">'
 																+ '<button class="btn btn-danger btn-xs" onclick="removeSession(&#39;'
 																+ data[i].comID.trim()
@@ -674,7 +671,7 @@
 											var l = Ladda.create(this);
 
 											var url = "${pageContext.request.contextPath}/mergeCompany.action";
-											var title='<tr><th width="30%">comID</th><th width="50%">客户名称</th><th width="20%" style="text-align:center">操作</th></tr>'
+											var title='<tr><th width="20%">comID</th><th width="50%">客户名称</th><th width="15%">所属销售</th><th width="15%" style="text-align:center">操作</th></tr>'
 
 											
 												merge(url,title,"CompanyList",l);
