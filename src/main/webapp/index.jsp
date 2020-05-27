@@ -8,6 +8,9 @@
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="0">
 
 <title>TargetMol 客户合并系统</title>
 
@@ -192,18 +195,16 @@
 														<tr></tr>
 														<c:forEach items="${sessionScope.TargetList}" var="row">
 															<tr>
-																<td width="20%">${row.comID}</td>
-																<td width="50%">${row.companyname}</td>
-																<td width="15%">
-
-       																	 <select id="id="editable-select">
-																	         
-																	            <option value="开发部">开发部</option>
-																	            <option value="市场部">市场部</option>
-																	            <option value="销售部">销售部</option>
-        																 </select>
-	 																</td>
-																<td width="15%" align="center">
+																<td width="20%" style='vertical-align: middle;'>${row.comID}</td>
+																<td width="45%" style='vertical-align: middle;'>${row.companyname}</td>
+																<td width="20%" style='vertical-align: middle;'>
+																	<select name="salesman" id="salesman" class="form-control">
+					
+																		<c:forEach items="${sessionScope.SalesList}" var="lst" varStatus="lststatus">
+																					  <option value="${lst}" selected>${lst}</option>
+																		</c:forEach>
+       																</select>
+																<td width="15%" align="center" style='vertical-align: middle;'>
 																	<button class="btn btn-danger btn-xs"
 																		onclick="removeSession('${row.comID}','newCompanyList')">移除</button>
 																</td>
@@ -214,47 +215,7 @@
 											</div>
 										</div>
 
-										<nav class="navbar navbar-static-top" role="navigation"
-											style="margin-bottom: 0">
-											<div class="navbar-header">
-												<button type="button" class="ladda-button ladda-button-demo btn btn-primary"  data-style="zoom-in" id="btn_merge">开始合并</button>
-											</div>
-											  <div class="ibox-content">
-                            <div class="text-center">
-                            <a data-toggle="modal" class="btn btn-primary" href="#modal-form">Form in simple modal box</a>
-                            </div>
-                            
-                            <div id="modal-form" class="modal fade" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-body">
-                                            <div class="row">
-                                                <div class="col-sm-6 b-r"><h3 class="m-t-none m-b">登录</h3>
-
-                                                    <p>今天登录获得更多经验。</p>
-
-                                                    <form role="form">
-                                                        <div class="form-group"><label>电子邮件</label> <input type="email" placeholder="请输入电子邮件" class="form-control"></div>
-                                                        <div class="form-group"><label>密码</label> <input type="password" placeholder="请输入密码" class="form-control"></div>
-                                                        <div>
-                                                            <button class="btn btn-sm btn-primary float-right m-t-n-xs" type="submit"><strong>登录</strong></button>
-                                                            <label> <input type="checkbox" class="i-checks"> 记住密码 </label>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                                <div class="col-sm-6"><h4>非平台会员?</h4>
-                                                    <p>您可以创建一个帐户:</p>
-                                                    <p class="text-center">
-                                                        <a href=""><i class="fa fa-sign-in big-icon"></i></a>
-                                                    </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div>
-                        </div>
-										</nav>
-
+								
 
 									</div>
 								</div>
@@ -438,7 +399,7 @@
 	    <script src="js/spin.min.js"></script>
 	    <script src="js/ladda.min.js"></script>
 	    <script src="js/jquery-editable-select.js"></script>
-
+		<script src="js/jquerysession.js"></script>
 
 
 		<script type="text/javascript">
@@ -534,7 +495,6 @@
 
 										function refreshCompanyList(data,tablekey) {
 											$("#" + tablekey).empty();
-
 											if(tablekey.indexOf('Contact')>0){
 												$("#" + tablekey).append('<thead><tr><th width="10%">contID</th><th width="20%">联系人名称</th><th width="60%">公司名称</th><th width="10%" style="text-align:center">操作</th></tr></thead><tr></tr>');
 												if(data!=null){
@@ -562,14 +522,27 @@
  
 													}
 											}else{
-												$("#" + tablekey).append('<thead><tr><th width="20%">comID</th><th width="50%">客户名称</th><th width="15%">所属销售</th><th width="15%" style="text-align:center">操作</th></tr></thead><tr></tr>');
-												if(data!=null){
+												
+												if(tablekey=="oldCompanyList"){
+													$("#" + tablekey).append('<thead><tr><th width="20%">comID</th><th width="50%">客户名称</th><th width="15%">所属销售</th><th width="15%" style="text-align:center">操作</th></tr></thead><tr></tr>');
+
+												}else{
+													$("#" + tablekey).append('<thead><tr><th width="20%">comID</th><th width="45%">客户名称</th><th width="20%">所属销售</th><th width="15%" style="text-align:center">操作</th></tr></thead><tr></tr>');
+													sdata=data.salesList
+													data=data.companyList;
+													console.log(data);
+													console.log(sdata);
+
+												}
+												
+												if(data!=null ){
 													for (var i = 0; i < data.length; i++) {
 														var salesman='';
 														if(data[i].csalesman!=null){
 															salesman=data[i].csalesman ;
 														}
-														var trHTML = '<tr ><td>'
+														if(tablekey=="oldCompanyList"){
+															var trHTML = '<tr ><td>'
 																+ data[i].comID
 																+ '</td><td>'
 																+ data[i].companyname
@@ -580,6 +553,23 @@
 																+ data[i].comID.trim()
 																+ '&#39;,&#39;'+tablekey+'&#39;)">移除</button>'
 																+ '</td></tr>';
+														}else{
+																	trHTML = '<tr ><td>'+ data[i].comID+ '</td><td>'+ data[i].companyname+ '</td><td>'+ '<select name="salesman" id="salesman" class="form-control">';
+																		alert(sdata[0]);
+																		for(var ii=0;ii<sdata.length;ii++ ){
+																			trHTML=trHTML+'<option value='+sdata[ii]+'selected>'+sdata[ii]+'</option>';
+																		}
+																		trHTML=trHTML+ '</select>'
+																		+ '</td><td align="center">'
+																		+ '<button class="btn btn-danger btn-xs" onclick="removeSession(&#39;'
+																		+ data[i].comID.trim()
+																		+ '&#39;,&#39;'+tablekey+'&#39;)">移除</button>'
+																		+ '</td></tr>';
+														alert(trHTML);				
+														}
+															
+														
+														
 														$("#" + tablekey).append(trHTML);
 														}
 													height=$("#" + tablekey)[0].offsetHeight+100;
@@ -734,7 +724,6 @@
 																						
 											var list="<%=session.getAttribute("SalesList")%>";
 											
-												alert(list);	
 												//merge(url,title,"CompanyList",l);
 											
 											

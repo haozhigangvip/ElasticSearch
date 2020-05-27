@@ -10,6 +10,7 @@ import com.hzg.vo.MergeResult;
 import com.hzg.vo.QueryVo;
 import com.hzg.vo.delSession;
 import com.hzg.vo.resultList;
+import com.hzg.vo.tCompanyList;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -33,6 +34,8 @@ import org.apache.jasper.tagplugins.jstl.core.ForEach;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -146,7 +149,12 @@ public class CompanyController {
 			}
 			
 			session.setAttribute(session_name, newls);
-			myUtils.setSalesList(session);		
+			try {
+				myUtils.setSalesList(session,response);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}		
 
 			 }
 			 
@@ -155,7 +163,7 @@ public class CompanyController {
 		
 		@RequestMapping("/removeCompanySession")
 		@ResponseBody
-	    public  List<Company>  removeSession(@RequestBody delSession delsession, HttpSession session)  {
+	    public  List<Company>  removeSession(@RequestBody delSession delsession, HttpSession session,HttpServletResponse response)  {
 			String comid=delsession.getComID();
 			String session_name=delsession.getSessionName();
 			System.out.println(session_name);
@@ -173,7 +181,12 @@ public class CompanyController {
 			 for (Company company : newls) {
 				System.out.println(company.toString());
 			}
-			 myUtils.setSalesList(session);		
+			 try {
+				myUtils.setSalesList(session,response);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}		
 
 			 return newls;
 		}
@@ -181,7 +194,7 @@ public class CompanyController {
 		
 		@RequestMapping("/addSourceList")
 	    @ResponseBody
-	    public  List<Company>  addSourceList(@RequestBody  Company company,HttpSession session)  {
+	    public  List<Company>  addSourceList(@RequestBody  Company company,HttpSession session,HttpServletResponse response)  {
 
 					String comid=company.getComID();
 					List<Company> list=(List<Company>)session.getAttribute("SourceList");
@@ -199,20 +212,28 @@ public class CompanyController {
 							
 						}
 					}
-					myUtils.setSalesList(session);		
+					try {
+						myUtils.setSalesList(session,response);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}		
 
 					
 					return list;
 				
 			}
+	
 		
 		@RequestMapping("/addTargetList")
 	    @ResponseBody
-	    public  List<Company>  addTargetList(@RequestBody  Company company, HttpServletRequest request,HttpSession session,HttpServletResponse response)  {
+	    public  tCompanyList addTargetList(@RequestBody  Company company, HttpServletRequest request,HttpSession session,HttpServletResponse response)  {
 
 			String comid=company.getComID();
 			System.out.println(comid);
-			List<Company> list=null;
+			List<Company> list=new ArrayList<Company>();
+			List<String> saleslist=new ArrayList<String>();
+			tCompanyList tlst=new tCompanyList();
 			Company com=customerService.findCompanyBycomID(comid);
 			if(com!=null){
 				
@@ -224,8 +245,15 @@ public class CompanyController {
 				}
 				
 			}
-			myUtils.setSalesList(session);		
-			return list;
+			try {
+				saleslist=myUtils.setSalesList(session,response);
+				tlst.setCompanyList(list);
+				tlst.setSalesList(saleslist);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}		
+			return tlst;
 		
 	}
 

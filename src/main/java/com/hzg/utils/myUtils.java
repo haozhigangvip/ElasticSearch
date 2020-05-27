@@ -1,9 +1,11 @@
 package com.hzg.utils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.hzg.entity.Company;
@@ -88,14 +90,14 @@ public static Contact  arrayTOContact(Object[] obj){
 	ct.setDelTag((Integer)obj[5]);
 	return ct;
 }
-public static  void setSalesList(HttpSession session){
+public static List<String> setSalesList(HttpSession session ,HttpServletResponse response) throws IOException{
 	
 	List<Company> oldlist=(List<Company>)session.getAttribute("SourceList");
 	List<Company> newlist=(List<Company>)session.getAttribute("TargetList");
 	Company com=null;
-	List ls=new ArrayList<>();
+	List<String> ls=new ArrayList<>();
 	
-	if(newlist!=null){
+	if(newlist!=null&& newlist.size()>0){
 		com=newlist.get(0);
 	}
 	
@@ -113,7 +115,9 @@ public static  void setSalesList(HttpSession session){
 		
 		ls.add(com.getCsalesman().trim());
 	}
-	session.setAttribute("SalesList", ls);		
+	session.setAttribute("SalesList", ls);	
+	return ls;
+
 }
 
 }
