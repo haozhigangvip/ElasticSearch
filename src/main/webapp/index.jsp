@@ -20,7 +20,10 @@
 
 <link href="css/animate.css" rel="stylesheet">
 <link href="css/style.css" rel="stylesheet">
+<link href="css/jquery-editable-select.css" rel="stylesheet">
+
 <link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
+
 <!-- Ladda style -->
 <link href="css/ladda-themeless.min.css" rel="stylesheet">
 </head>
@@ -36,9 +39,9 @@
 	/* 防止水平滚动条 */
 	overflow-x: hidden;
 }
+
 </style>
-
-
+   
 	<div id="wrapper">
 
 		<nav class="navbar-default navbar-static-side" role="navigation">
@@ -141,6 +144,7 @@
 																<td width="20%">${row.comID}</td>
 																<td width="50%">${row.companyname}</td>
 																<td width="15%">${row.csalesman}</td>
+																
 																<td width="15%" align="center">
 																	<button class="btn btn-danger btn-xs"
 																		onclick="removeSession('${row.comID}','oldCompanyList')">移除</button>
@@ -190,7 +194,15 @@
 															<tr>
 																<td width="20%">${row.comID}</td>
 																<td width="50%">${row.companyname}</td>
-																<td width="15%">${row.csalesman}</td>
+																<td width="15%">
+
+       																	 <select id="id="editable-select">
+																	         
+																	            <option value="开发部">开发部</option>
+																	            <option value="市场部">市场部</option>
+																	            <option value="销售部">销售部</option>
+        																 </select>
+	 																</td>
 																<td width="15%" align="center">
 																	<button class="btn btn-danger btn-xs"
 																		onclick="removeSession('${row.comID}','newCompanyList')">移除</button>
@@ -207,6 +219,40 @@
 											<div class="navbar-header">
 												<button type="button" class="ladda-button ladda-button-demo btn btn-primary"  data-style="zoom-in" id="btn_merge">开始合并</button>
 											</div>
+											  <div class="ibox-content">
+                            <div class="text-center">
+                            <a data-toggle="modal" class="btn btn-primary" href="#modal-form">Form in simple modal box</a>
+                            </div>
+                            
+                            <div id="modal-form" class="modal fade" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="col-sm-6 b-r"><h3 class="m-t-none m-b">登录</h3>
+
+                                                    <p>今天登录获得更多经验。</p>
+
+                                                    <form role="form">
+                                                        <div class="form-group"><label>电子邮件</label> <input type="email" placeholder="请输入电子邮件" class="form-control"></div>
+                                                        <div class="form-group"><label>密码</label> <input type="password" placeholder="请输入密码" class="form-control"></div>
+                                                        <div>
+                                                            <button class="btn btn-sm btn-primary float-right m-t-n-xs" type="submit"><strong>登录</strong></button>
+                                                            <label> <input type="checkbox" class="i-checks"> 记住密码 </label>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                                <div class="col-sm-6"><h4>非平台会员?</h4>
+                                                    <p>您可以创建一个帐户:</p>
+                                                    <p class="text-center">
+                                                        <a href=""><i class="fa fa-sign-in big-icon"></i></a>
+                                                    </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                        </div>
 										</nav>
 
 
@@ -339,6 +385,10 @@
 											<div class="navbar-header">
 												<button type="submit" class="btn btn-primary"   data-style="zoom-in"  id="btn_Contact_merge">开始合并</button>
 											</div>
+											
+											
+											
+											
 										</nav>
 
 
@@ -387,10 +437,17 @@
 		<!-- Ladda -->
 	    <script src="js/spin.min.js"></script>
 	    <script src="js/ladda.min.js"></script>
+	    <script src="js/jquery-editable-select.js"></script>
 
 
 
 		<script type="text/javascript">
+			$('#editable-select').editableSelect();
+
+	        function selectOnChangeFunc() {
+	            document.getElementById('id_input').value = document.getElementById('id_select').options[document.getElementById('id_select').selectedIndex].value;
+	        }
+
 			jQuery(function($) {
 
 				$(document).ready(
@@ -398,6 +455,7 @@
 									(function() {
 											var insertOptions = function(data, id) {
 											var result = new Array();
+
 											if (id.indexOf("Contact") >= 0) {
 												for (var ii = 0, rr = data.length; ii < rr; ii++) {
 													result.push(data[ii].contID +"-" +$.trim(data[ii].name)+ "-"
@@ -537,6 +595,7 @@
 											
 
 										}
+										
 
 										$('#oldCompany').click(function() {
 															var $url = "${pageContext.request.contextPath}/addSourceList.action";
@@ -672,9 +731,11 @@
 
 											var url = "${pageContext.request.contextPath}/mergeCompany.action";
 											var title='<tr><th width="20%">comID</th><th width="50%">客户名称</th><th width="15%">所属销售</th><th width="15%" style="text-align:center">操作</th></tr>'
-
+																						
+											var list="<%=session.getAttribute("SalesList")%>";
 											
-												merge(url,title,"CompanyList",l);
+												alert(list);	
+												//merge(url,title,"CompanyList",l);
 											
 											
 											return false;

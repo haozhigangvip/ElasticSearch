@@ -3,6 +3,9 @@ package com.hzg.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import com.hzg.entity.Company;
 import com.hzg.entity.Contact;
 import com.hzg.vo.contactResult;
@@ -21,7 +24,7 @@ public static  int chkCompanyList(List<Company> list,Company CheckCompany){
 }
 public static  int chkContactList(List<Contact> list,Contact CheckContact){
 	for (Contact cont : list) {
-	System.out.println(cont.getContID());
+		System.out.println(cont.getContID());
 
 	if(cont.getContID().toString().trim().equals(CheckContact.getContID().toString().trim())){
 
@@ -84,6 +87,33 @@ public static Contact  arrayTOContact(Object[] obj){
 	ct.setCompanyname((String)obj[4]);
 	ct.setDelTag((Integer)obj[5]);
 	return ct;
+}
+public static  void setSalesList(HttpSession session){
+	
+	List<Company> oldlist=(List<Company>)session.getAttribute("SourceList");
+	List<Company> newlist=(List<Company>)session.getAttribute("TargetList");
+	Company com=null;
+	List ls=new ArrayList<>();
+	
+	if(newlist!=null){
+		com=newlist.get(0);
+	}
+	
+	
+	
+	if(oldlist!=null){
+	for (Company comp : oldlist) {
+		String salesman=comp.getCsalesman();
+		if(salesman!=null && (ls==null ||  ls.indexOf(salesman.trim())<=0)){
+			ls.add(salesman.trim());
+		}
+	}}
+	
+	if(com!=null &&com.getCsalesman()!=null &&(ls==null || ls.indexOf(com.getCsalesman().trim())<=0)){
+		
+		ls.add(com.getCsalesman().trim());
+	}
+	session.setAttribute("SalesList", ls);		
 }
 
 }

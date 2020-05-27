@@ -146,6 +146,8 @@ public class CompanyController {
 			}
 			
 			session.setAttribute(session_name, newls);
+			myUtils.setSalesList(session);		
+
 			 }
 			 
 			return "redirect:/";
@@ -171,6 +173,8 @@ public class CompanyController {
 			 for (Company company : newls) {
 				System.out.println(company.toString());
 			}
+			 myUtils.setSalesList(session);		
+
 			 return newls;
 		}
 		
@@ -195,6 +199,8 @@ public class CompanyController {
 							
 						}
 					}
+					myUtils.setSalesList(session);		
+
 					
 					return list;
 				
@@ -218,12 +224,12 @@ public class CompanyController {
 				}
 				
 			}
-			
+			myUtils.setSalesList(session);		
 			return list;
 		
 	}
 
-		
+	
 		
 		
 		
