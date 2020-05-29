@@ -13,7 +13,7 @@ public interface CompanyService {
 
 	public Company  findCompanyBycomID(String companyID);
 
-	public int MergerCompany(List<Company> oldCompanList, Company newCompany);
+	public int MergerCompany(List<Company> oldCompanList, Company newCompany,String sales);
 
 
 	public List<CompanyMergeHistory_Total> getListHistory();

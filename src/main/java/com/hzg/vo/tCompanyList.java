@@ -5,13 +5,20 @@ import java.util.List;
 import com.hzg.entity.Company;
 
 public class tCompanyList {
-private List<Company> companyList;
+private List<Company> targetCompanyList;
+private List<Company> sourceCompanyList;
 private List<String> salesList;
-public List<Company> getCompanyList() {
-	return companyList;
+public List<Company> getTargetCompanyList() {
+	return targetCompanyList;
 }
-public void setCompanyList(List<Company> companyList) {
-	this.companyList = companyList;
+public void setTargetCompanyList(List<Company> targetCompanyList) {
+	this.targetCompanyList = targetCompanyList;
+}
+public List<Company> getSourceCompanyList() {
+	return sourceCompanyList;
+}
+public void setSourceCompanyList(List<Company> sourceCompanyList) {
+	this.sourceCompanyList = sourceCompanyList;
 }
 public List<String> getSalesList() {
 	return salesList;
@@ -19,7 +26,6 @@ public List<String> getSalesList() {
 public void setSalesList(List<String> salesList) {
 	this.salesList = salesList;
 }
-
 
 
 }

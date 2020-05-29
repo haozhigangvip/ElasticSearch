@@ -17,6 +17,7 @@ import com.hzg.repository.InteractionDao;
 import com.hzg.repository.InvoiceDao;
 import com.hzg.repository.OrderDao;
 import com.hzg.repository.QuoteDao;
+import com.hzg.repository.SalesMergeDao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -63,16 +64,35 @@ public class CompanyServiceImpl implements CompanyService{
     @Autowired
     private CompanyMergeHistoryDao comMerge;
    
+    @Autowired
+    private SalesMergeDao salesMergerDao;
+    
     
     
 	@Override
 	@Transactional(rollbackFor=Exception.class)
 	@Rollback(value=false)
 	//如要回滚，需引用 throw new RuntimeException();方法
-	public int MergerCompany(List<Company> oldCompanList,Company newCompany){
+	public int MergerCompany(List<Company> oldCompanList,Company newCompany,String newSales){
 		int result=1;
 		String new_Comp_id=newCompany.getComID();
 		String new_Comp_name=newCompany.getCompanyname();
+		String oldSales=null;
+		Company cp=companyDao.findCompanyByComID(new_Comp_id);
+		
+		//更新销售
+		if(cp!=null){
+			try{
+				oldSales=cp.getCsalesman();
+				cp.setCsalesman(newSales);
+				companyDao.save(cp);
+			}catch(Exception E){
+				throw new RuntimeException();
+			}
+			
+		}
+		
+		
 		for (Company company : oldCompanList) {
 			String old_Com_id=company.getComID();
 			String old_Com_name=company.getCompanyname();
@@ -82,7 +102,7 @@ public class CompanyServiceImpl implements CompanyService{
 			
 				for (Quote quote : Quote_list) {
 					try {
-						saveHistory("Quote",old_Com_id,old_Com_name,new_Comp_id,new_Comp_name,quote.getAutoID());
+						saveHistory("Quote",old_Com_id,old_Com_name,new_Comp_id,new_Comp_name,quote.getAutoID(),oldSales,newSales);
 						quote.setComID(new_Comp_id);
 						quoteDao.save(quote);
 					} catch (Exception e) {
@@ -98,7 +118,7 @@ public class CompanyServiceImpl implements CompanyService{
 			if(Order_list!=null && Order_list.size()>0){
 				for (Orders orders : Order_list) {
 					try {
-						saveHistory("Order",old_Com_id,old_Com_name,new_Comp_id,new_Comp_name,orders.getAutoID());
+						saveHistory("Order",old_Com_id,old_Com_name,new_Comp_id,new_Comp_name,orders.getAutoID(),oldSales,newSales);
 						orders.setComID(new_Comp_id);
 						orderDao.save(orders);
 					} catch (Exception e) {
@@ -114,7 +134,7 @@ public class CompanyServiceImpl implements CompanyService{
 			if(Invoice_list!=null && Invoice_list.size()>0){
 				for (Invoice invoice : Invoice_list) {
 					try {
-						saveHistory("Invoice_info",old_Com_id,old_Com_name,new_Comp_id,new_Comp_name,invoice.getAutoID());
+						saveHistory("Invoice_info",old_Com_id,old_Com_name,new_Comp_id,new_Comp_name,invoice.getAutoID(),oldSales,newSales);
 						invoice.setComID(new_Comp_id);
 						invoiceDao.save(invoice);
 					} catch (Exception e) {
@@ -130,7 +150,7 @@ public class CompanyServiceImpl implements CompanyService{
 			if(Contact_list!=null && Contact_list.size()>0){
 				for (Contact contact : Contact_list) {
 					try {
-						saveHistory("Contact",old_Com_id,old_Com_name,new_Comp_id,new_Comp_name,contact.getAutoID());
+						saveHistory("Contact",old_Com_id,old_Com_name,new_Comp_id,new_Comp_name,contact.getAutoID(),oldSales,newSales);
 						contact.setComID(new_Comp_id);
 						contactDao.save(contact);
 					} catch (Exception e) {
@@ -141,12 +161,10 @@ public class CompanyServiceImpl implements CompanyService{
 					}
 				}
 			}			
-			//更新CompanyInfo删除标记
 			
-			Company cp=updateCompanyinfoDeltag(old_Com_id,1);
-			System.out.println("==============================");
-			System.out.println(cp.getAutoID());
-			saveHistory("CompanyInfo",old_Com_id,old_Com_name,new_Comp_id,new_Comp_name,cp.getAutoID());
+			//更新CompanyInfo删除标记
+			cp=updateCompanyinfoDeltag(old_Com_id,1);
+			saveHistory("CompanyInfo",old_Com_id,old_Com_name,new_Comp_id,new_Comp_name,cp.getAutoID(),oldSales,newSales);
 		}
 		
 
@@ -157,11 +175,16 @@ public class CompanyServiceImpl implements CompanyService{
 	}
     
 	
+	
+	
+	
 	//更新CompanyInfo删除标记
 	public Company updateCompanyinfoDeltag(String old_Com_id,int tag){
 		// 更新CompanyInfo Deltag
 					Company cp=companyDao.findCompanyByComID(old_Com_id);
+					
 					cp.setDelTag(tag);
+					
 					try {
 						companyDao.save(cp);
 					} catch (Exception e) {
@@ -175,7 +198,7 @@ public class CompanyServiceImpl implements CompanyService{
 					}
 	}
 		//保存到更新历史记录
-	private void saveHistory(String TableName,String oldComID,String oldComName,String newComID,String newComName,int tableKeyID){
+	private void saveHistory(String TableName,String oldComID,String oldComName,String newComID,String newComName,int tableKeyID,String oldSales,String newSales){
 		if(oldComID!=null  & newComID!=null){
 		Timestamp createtime=new Timestamp(System.currentTimeMillis());
 		CompanyMergeHistory_Total comHistory_Total=comMerge_Total.findCompanyMergeHistoryTotalKey(oldComID, newComID);
@@ -191,12 +214,16 @@ public class CompanyServiceImpl implements CompanyService{
 			comHistory_Total.setCompanyName_New(newComName);
 			comHistory_Total.setCompanyID_Old(oldComID);
 			comHistory_Total.setCompanyName_Old(oldComName);
-			comHistory_Total.setCreatime(createtime);	
+			comHistory_Total.setCreatime(createtime);
+			comHistory_Total.setOldSalesman(oldSales);
+			comHistory_Total.setNewSalesman(newSales);
+			
 		}
-		comHistory.setComMergeHistory_Total(comHistory_Total);
-		comHistory_Total.getComMergeHistory().add(comHistory);
-			comMerge_Total.save(comHistory_Total);	
-		
+			comHistory.setComMergeHistory_Total(comHistory_Total);
+			comHistory_Total.getComMergeHistory().add(comHistory);
+			comMerge_Total.save(comHistory_Total);
+
+			
 		}
 	
 		
@@ -292,14 +319,28 @@ public class CompanyServiceImpl implements CompanyService{
     			int res=1;
     			String CompanyID;
     			String CompanyID_New;
+    			String oldSales;
+    			String newSales;
     			try{
     			CompanyMergeHistory_Total  comHistory_total=comMerge_Total.findOne(id);
     			if( comHistory_total!=null){
     				CompanyID=comHistory_total.getCompanyID_Old().trim();
     				CompanyID_New=comHistory_total.getCompanyID_New().trim();
+    				oldSales=comHistory_total.getOldSalesman().trim();
+    				newSales=comHistory_total.getNewSalesman().trim();
     				Set<CompanyMergeHistory> set=comHistory_total.getComMergeHistory();
     				if(set!=null){
     				int tag=1;
+    				Company company=companyDao.findCompanyByComID(CompanyID_New);
+    				if(company!=null){
+    					try {
+							company.setCsalesman(oldSales);
+							companyDao.save(company);
+						} catch (Exception e) {
+							tag=0;
+							
+						}
+    				}
     				for (CompanyMergeHistory companyMergeHistory : set) {
     					String tablename=companyMergeHistory.getTableName().trim();
     					int tid=companyMergeHistory.getTableID();
@@ -354,7 +395,7 @@ public class CompanyServiceImpl implements CompanyService{
     						break;	
     						
     					case "CompanyInfo": //更新CompanyInfo删除标记
-    						Company company=updateCompanyinfoDeltag(CompanyID,0);
+    						 company=updateCompanyinfoDeltag(CompanyID,0);
     						if(company==null){
     							tag=0;
     						}

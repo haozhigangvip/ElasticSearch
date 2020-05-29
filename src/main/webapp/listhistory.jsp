@@ -84,6 +84,8 @@
 							<span class="nav-label">客户/联系人合并</span> </a></li>
 					<li><a href="listhistory.jsp"><i class="fa fa-list-alt"></i>
 							<span class="nav-label">客户/联系人合并记录</span></a></li>
+					<li><a href="assign.html"><i class="fa fa-list-alt"></i>
+							<span class="nav-label">变更客户对应销售员</span></a></li>		
 
                 </li>
                </ul>

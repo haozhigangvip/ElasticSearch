@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.hzg.entity.Contact;
+import com.hzg.vo.SalesStatistics;
 @Repository
 public interface ContactDao  extends JpaRepository<Contact,Integer>,JpaSpecificationExecutor<Contact>{
 	
@@ -23,4 +24,7 @@ public interface ContactDao  extends JpaRepository<Contact,Integer>,JpaSpecifica
 //	 public List<Object> getByContIDorName(String contID);
 	 @Query(value="From Contact ct,Company cp where ct.comID=cp.comID and (ct.contID like %?1% or ct.name like %?1%) and (ct.delTag <> 1 or ct.delTag is null)" )			  
 	 public Page<Object[]> getByContIDorName(String contID,Pageable pageable);
+	 
+	 @Query(value="select salesman as salesman ,count(salesman) as count from Contact where comID=?1  group by salesman")
+	 public List<SalesStatistics> getSalesList(String comID);
 }

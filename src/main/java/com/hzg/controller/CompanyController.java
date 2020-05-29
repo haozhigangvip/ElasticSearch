@@ -122,53 +122,30 @@ public class CompanyController {
 	    } 
 		
 	
-			
-		@RequestMapping("/clearSourceList")
-	    @ResponseBody
-	    public  void  clearSourceList(HttpSession session,HttpServletResponse response)  {
-			
-			session.setAttribute("SourceList",null);
-			try {
-				response.sendRedirect("index.jsp");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		@RequestMapping("/removeSourceList")
-	    public  String  removeSourceList(@RequestParam("comID") String comID,@RequestParam("session") String session_name,HttpSession session,HttpServletResponse response)  {
-			System.out.println("sss:"+session_name);
-			List<Company> ls = (List<Company>)session.getAttribute(session_name);
-			 List<Company> newls=new ArrayList<Company>();
-			 if(ls!=null){
-			 for (Company company : ls) {
-				if(!(company.getComID().trim().equals(comID))){
-					newls.add(company);
-				}
-			}
-			
-			session.setAttribute(session_name, newls);
-			try {
-				myUtils.setSalesList(session,response);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}		
-
-			 }
-			 
-			return "redirect:/";
-		}
+	
 		
 		@RequestMapping("/removeCompanySession")
 		@ResponseBody
-	    public  List<Company>  removeSession(@RequestBody delSession delsession, HttpSession session,HttpServletResponse response)  {
+	    public  tCompanyList  removeSession(@RequestBody delSession delsession, HttpSession session,HttpServletResponse response)  {
 			String comid=delsession.getComID();
 			String session_name=delsession.getSessionName();
-			System.out.println(session_name);
-			List<Company> ls = (List<Company>)session.getAttribute(session_name);
+			List<Company> ls = null;
+			List<Company> ls1 = null;
+
+			if(session_name.equals("SourceList")){
+				ls=(List<Company>)session.getAttribute(session_name);
+
+
+			}else
+			{
+				ls = (List<Company>)session.getAttribute(session_name);
+			}
+			
+			
 			List<Company> newls=new ArrayList<Company>();
+			List<String> saleslist=new ArrayList<String>();
+			tCompanyList tlst=new tCompanyList();
+
 			 if(ls!=null){
 			 for (Company company : ls) {
 				if(!(company.getComID().trim().equals(comid))){
@@ -178,41 +155,64 @@ public class CompanyController {
 			
 			 session.setAttribute(session_name, newls);
 			 }
-			 for (Company company : newls) {
-				System.out.println(company.toString());
-			}
+			
 			 try {
-				myUtils.setSalesList(session,response);
+				 saleslist=myUtils.setSalesList(session,response);
+					if(session_name.equals("SourceList")){
+						 tlst.setSourceCompanyList(newls);
+						 tlst.setTargetCompanyList((List<Company>)session.getAttribute("TargetList"));
+
+					}else{
+						 tlst.setSourceCompanyList((List<Company>)session.getAttribute("SourceList"));
+						 tlst.setTargetCompanyList(newls);
+
+					}
+				 tlst.setSalesList(saleslist);
+				 myUtils.setSalesList(session,response);
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}		
 
-			 return newls;
+			 return tlst;
 		}
 		
 		
 		@RequestMapping("/addSourceList")
 	    @ResponseBody
-	    public  List<Company>  addSourceList(@RequestBody  Company company,HttpSession session,HttpServletResponse response)  {
+	    public  tCompanyList  addSourceList(@RequestBody  Company company,HttpSession session,HttpServletResponse response)  {
 
 					String comid=company.getComID();
-					List<Company> list=(List<Company>)session.getAttribute("SourceList");
-					
+					List<Company> targetlist=(List<Company>)session.getAttribute("TargetList");
+					List<Company> sourcelist=(List<Company>)session.getAttribute("SourceList");
+					List<String> saleslist=new ArrayList<String>();
+					tCompanyList tlst=new tCompanyList();
 
-					if(list==null){
-						list=new ArrayList<Company>();
+					if(sourcelist==null ){
+						sourcelist =new ArrayList<Company>();
+
 					}
+					if(targetlist==null ){
+						targetlist =new ArrayList<Company>();
+
+					}
+					
 
 					Company com=customerService.findCompanyBycomID(comid);
 					if(com!=null){
-						if(myUtils.chkCompanyList(list,com)==0){
-							list.add(com);
-							session.setAttribute("SourceList", list);					
+						if(myUtils.chkCompanyList(sourcelist,com)==0){
+							sourcelist.add(com);
+							session.setAttribute("SourceList", sourcelist);					
 							
 						}
 					}
 					try {
+						
+						saleslist=myUtils.setSalesList(session,response);
+						tlst.setSourceCompanyList(sourcelist);
+						tlst.setTargetCompanyList(targetlist);
+						tlst.setSalesList(saleslist);
 						myUtils.setSalesList(session,response);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
@@ -220,7 +220,7 @@ public class CompanyController {
 					}		
 
 					
-					return list;
+					return tlst;
 				
 			}
 	
@@ -230,11 +230,19 @@ public class CompanyController {
 	    public  tCompanyList addTargetList(@RequestBody  Company company, HttpServletRequest request,HttpSession session,HttpServletResponse response)  {
 
 			String comid=company.getComID();
-			System.out.println(comid);
 			List<Company> list=new ArrayList<Company>();
 			List<String> saleslist=new ArrayList<String>();
+			List<Company> sourcelist=new ArrayList<Company>();
+			if(sourcelist==null || sourcelist.size()<=0){
+				sourcelist=new ArrayList<Company>();
+			}
+			
 			tCompanyList tlst=new tCompanyList();
 			Company com=customerService.findCompanyBycomID(comid);
+			
+			
+			
+			
 			if(com!=null){
 				
 				
@@ -246,8 +254,12 @@ public class CompanyController {
 				
 			}
 			try {
+				
+				
+				sourcelist =(List<Company>)session.getAttribute("SourceList");
 				saleslist=myUtils.setSalesList(session,response);
-				tlst.setCompanyList(list);
+				tlst.setSourceCompanyList(sourcelist);
+				tlst.setTargetCompanyList(list);
 				tlst.setSalesList(saleslist);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -262,9 +274,10 @@ public class CompanyController {
 		
 		
 		@RequestMapping(value="/mergeCompany",produces="application/json")
-	    public @ResponseBody MergeResult mergeCompany(HttpSession session) throws InterruptedException{
+	    public @ResponseBody MergeResult mergeCompany(@RequestParam String sales, HttpSession session) throws InterruptedException{
 			List<Company> oldList=(List<Company>)session.getAttribute("SourceList");
 			List<Company> newList=(List<Company>)session.getAttribute("TargetList");
+
 			String message="合并完成";
 			int code=0;
 			 
@@ -277,7 +290,7 @@ public class CompanyController {
 				code=2;
 			}else{
 			//开始合并
-			code=customerService.MergerCompany(oldList, newList.get(0));
+			code=customerService.MergerCompany(oldList, newList.get(0),sales);
 
 			}
 			
@@ -294,7 +307,6 @@ public class CompanyController {
 			MergeResult result=new MergeResult();
 			result.setCode(code);
 			result.setMessage(message);
-			System.out.println(result.getMessage());
 			return result;
 			
 		}

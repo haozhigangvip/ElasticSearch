@@ -58,7 +58,9 @@
 							<span class="nav-label">客户/联系人合并</span> </a></li>
 					<li><a href="listhistory.jsp"><i class="fa fa-list-alt"></i>
 							<span class="nav-label">客户/联系人合并记录</span></a></li>
-
+					<li><a href="assign.html"><i class="fa fa-list-alt"></i>
+							<span class="nav-label">变更客户对应销售员</span></a></li>
+					
 
 				</ul>
 
@@ -216,6 +218,16 @@
 										</div>
 
 								
+										<nav class="navbar navbar-static-top" role="navigation"
+											style="margin-bottom: 0">
+											<div class="navbar-header">
+												<button type="submit" class="btn btn-primary"   data-style="zoom-in"  id="btn_merge">开始合并</button>
+											</div>
+											
+											
+											
+											
+										</nav>
 
 									</div>
 								</div>
@@ -421,7 +433,6 @@
 												for (var ii = 0, rr = data.length; ii < rr; ii++) {
 													result.push(data[ii].contID +"-" +$.trim(data[ii].name)+ "-"
 																	+ $.trim(data[ii].companyname));
-													console.log(result);
 
 
 												}
@@ -522,19 +533,16 @@
  
 													}
 											}else{
-												
+												sdata=data.salesList;
 												if(tablekey=="oldCompanyList"){
 													$("#" + tablekey).append('<thead><tr><th width="20%">comID</th><th width="50%">客户名称</th><th width="15%">所属销售</th><th width="15%" style="text-align:center">操作</th></tr></thead><tr></tr>');
+													data=data.sourceCompanyList;
 
 												}else{
 													$("#" + tablekey).append('<thead><tr><th width="20%">comID</th><th width="45%">客户名称</th><th width="20%">所属销售</th><th width="15%" style="text-align:center">操作</th></tr></thead><tr></tr>');
-													sdata=data.salesList
-													data=data.companyList;
-													console.log(data);
-													console.log(sdata);
-
+													data=data.targetCompanyList;
+	
 												}
-												
 												if(data!=null ){
 													for (var i = 0; i < data.length; i++) {
 														var salesman='';
@@ -555,9 +563,9 @@
 																+ '</td></tr>';
 														}else{
 																	trHTML = '<tr ><td>'+ data[i].comID+ '</td><td>'+ data[i].companyname+ '</td><td>'+ '<select name="salesman" id="salesman" class="form-control">';
-																		alert(sdata[0]);
-																		for(var ii=0;ii<sdata.length;ii++ ){
-																			trHTML=trHTML+'<option value='+sdata[ii]+'selected>'+sdata[ii]+'</option>';
+																	
+																	 for(var ii=0;ii<sdata.length;ii++ ){
+																			trHTML=trHTML+'<option value='+sdata[ii]+' selected>'+sdata[ii]+'</option>';
 																		}
 																		trHTML=trHTML+ '</select>'
 																		+ '</td><td align="center">'
@@ -565,12 +573,12 @@
 																		+ data[i].comID.trim()
 																		+ '&#39;,&#39;'+tablekey+'&#39;)">移除</button>'
 																		+ '</td></tr>';
-														alert(trHTML);				
 														}
 															
 														
 														
 														$("#" + tablekey).append(trHTML);
+
 														}
 													height=$("#" + tablekey)[0].offsetHeight+100;
 													if(height>=415){
@@ -599,8 +607,9 @@
 																		dataType : 'json',
 																		data : JSON.stringify({'comID' : key}),
 																		success : function(data) {
-																			refreshCompanyList(data,'oldCompanyList');
-																			$("#search_kw").val("");
+																				refreshCompanyList(data,'oldCompanyList');
+																				refreshCompanyList(data,'newCompanyList');
+																				$("#search_kw").val("");
 																		}
 																	});
 														});
@@ -616,9 +625,7 @@
 																		dataType : 'json',
 																		data : JSON
 																				.stringify({'comID' : key}),
-																		success : function(
-																				data) {
-																			console.log(data);
+																		success : function(data) {
 																			refreshCompanyList(data,'newCompanyList');
 																			$("#search_kw_new").val("");
 
@@ -698,16 +705,14 @@
 														url : $url,
 														contentType : "application/json;charset=utf-8",
 														dataType : 'json',
-														data : JSON
-																.stringify({
+														data : JSON.stringify({
 																	'comID' : com,
 																	'sessionName' : session
 																}),
 														success : function(data) {
-															console.log(data);
-															refreshCompanyList(
-																	data,
-																	tablename);
+															refreshCompanyList(data,'oldCompanyList');
+															
+															refreshCompanyList(data,'newCompanyList');
 
 														}
 													});
@@ -719,13 +724,20 @@
 										
 											var l = Ladda.create(this);
 
-											var url = "${pageContext.request.contextPath}/mergeCompany.action";
+											var url = "${pageContext.request.contextPath}/mergeCompany";
+											var url1 = "${pageContext.request.contextPath}/updateSales";
+
 											var title='<tr><th width="20%">comID</th><th width="50%">客户名称</th><th width="15%">所属销售</th><th width="15%" style="text-align:center">操作</th></tr>'
 																						
 											var list="<%=session.getAttribute("SalesList")%>";
+											var tlist="<%=session.getAttribute("TargetList")%>";
+											if($('#salesman').val().trim()==null || $('#salesman').val().trim()==""){
+												alert("请选择销售");
+												return false
+											}
 											
-												//merge(url,title,"CompanyList",l);
-											
+											 merge(url,title,"CompanyList",l);
+												
 											
 											return false;
 	
@@ -741,6 +753,10 @@
 											return false;
 										});
 										
+										
+										var updateSales=function($url,$comID,$salesname){
+											
+										}
 										var merge =function($url,$title,$tab,l){
 											
 											l.start();
@@ -748,12 +764,14 @@
 												backdrop : "static",
 												keyboard : false
 												});
+											var key="sales="+$('#salesman').val().trim();
 											
-										$.ajax({type : "post",
+										$.ajax({type : "GET",
 											url : $url,
+											processData : false,
 											contentType : "application/json;charset=utf-8",
 											dataType : 'json',
-											data : "123",
+											data : key,
 											success : function(data) {
 												l.stop();
 												if (data["code"] == 0) {
