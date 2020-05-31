@@ -2,24 +2,10 @@ package com.hzg.service;
 
 import java.util.List;
 
-import com.hzg.entity.Company;
-import com.hzg.entity.CompanyMergeHistory_Total;
+import com.hzg.entity.Company_ELK;
+
 
 public interface CompanyService {
-	 public List<Company> findCompanyByLikeNameOrID(String companyNameOrID);
+    public List<Company_ELK> findByComIDandName(String key,Integer page,Integer pageNumic);
 
-
-	public int UpdateCompanyDelTag(String companyID,int value);
-
-	public Company  findCompanyBycomID(String companyID);
-
-	public int MergerCompany(List<Company> oldCompanList, Company newCompany,String sales);
-
-
-	public List<CompanyMergeHistory_Total> getListHistory();
-
-
-	public int resumeCompany(int id);
-
-	 
 }

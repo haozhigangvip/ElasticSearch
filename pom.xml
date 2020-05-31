@@ -3,6 +3,7 @@
   <groupId>com.hzg</groupId>
   <artifactId>comMerge</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  
   <packaging>war</packaging>
   <name>CompMerge Maven Webapp</name>
   <url>http://maven.apache.org</url>
@@ -15,6 +16,7 @@
   </properties>
   
   <dependencies>
+  
   <dependency>
             <groupId>net.sf.json-lib</groupId>
             <artifactId>json-lib</artifactId>
@@ -110,16 +112,6 @@
     
     
     <dependency>
-      <groupId>c3p0</groupId>
-      <artifactId>c3p0</artifactId>
-      <version>0.9.1.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.data</groupId>
-      <artifactId>spring-data-jpa</artifactId>
-      <version>1.9.0.RELEASE</version>
-    </dependency>
-    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
       <version>4.2.4.RELEASE</version>
@@ -135,11 +127,6 @@
       <version>2.2.4</version>
     </dependency>
     <dependency>
-      <groupId>com.microsoft.sqlserver</groupId>
-      <artifactId>mssql-jdbc</artifactId>
-      <version>8.2.0.jre8</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>3.4</version>
@@ -152,6 +139,27 @@
   </dependency>
 
 
+	<dependency>
+		<groupId>org.elasticsearch</groupId>
+		<artifactId>elasticsearch</artifactId>
+		<version>5.6.8</version>
+	</dependency>
+	<dependency>
+		<groupId>org.elasticsearch.client</groupId>
+		<artifactId>transport</artifactId>
+		<version>5.6.8</version>
+	</dependency>
+
+	  <dependency>
+  		<groupId>com.fasterxml.jackson.core</groupId>
+  		<artifactId>jackson-annotations</artifactId>
+  		<version>2.9.0</version>
+  	</dependency>
+	  <dependency>
+	  	<groupId>org.springframework.data</groupId>
+	  	<artifactId>spring-data-elasticsearch</artifactId>
+	  	<version>3.0.6.RELEASE</version>
+	  </dependency>
   </dependencies>
   <build>
     <finalName>CompMerge</finalName>
@@ -178,5 +186,5 @@
       </resource>
     </resources>
   </build>
-  
+
 </project>
