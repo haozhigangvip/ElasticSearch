@@ -1,812 +1,467 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 
 <head>
 
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
-<META HTTP-EQUIV="Expires" CONTENT="0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>TargetMol 客户合并系统</title>
+    <title>TargetMol 客户合并系统</title>
 
-<link href="css/bootstrap.min.css" rel="stylesheet">
-<link href="css/font-awesome.css" rel="stylesheet">
-<!-- Toastr style -->
-<link href="css/toastr.min.css" rel="stylesheet">
-<!-- Sweet Alert -->
-<link href="css/sweetalert.css" rel="stylesheet">
-
-<link href="css/animate.css" rel="stylesheet">
-<link href="css/style.css" rel="stylesheet">
-<link href="css/jquery-editable-select.css" rel="stylesheet">
-
-<link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
-
-<!-- Ladda style -->
-<link href="css/ladda-themeless.min.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/font-awesome.css" rel="stylesheet">
+	  <link href="css/footable.core.css" rel="stylesheet">
+	
+    <!-- Toastr style -->
+    <link href="css/toastr.min.css" rel="stylesheet">
+	 <!-- Sweet Alert -->
+    <link href="css/sweetalert.css" rel="stylesheet">
+    
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+	<link href="css/strip.css" rel="stylesheet">
+	
+    <link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="css/dataTables.jqueryui.css">
+    <link href="css/ladda-themeless.min.css" rel="stylesheet">
+    <style>
+         .highlight {
+             background-color: skyblue
+         }
+     </style>
 </head>
 
 <body>
-	<style type="text/css">
-.ui-com {
-	font-size: 14px;
-	max-height: 100px;
-	max-width: 772px;
-	width: 772px;
-	overflow-y: auto;
-	/* 防止水平滚动条 */
-	overflow-x: hidden;
-}
+    <style type="text/css">
+    
+      .ui-com {
+        font-size: 14px;
+        max-height: 100px;
+        max-width: 772px;
+        width: 772px;
+        overflow-y: auto;
+        /* 防止水平滚动条 */
+        overflow-x: hidden
+      }
+      .listHistory_filter{
+      	width:450px;
+      }
+       
+        th.ui-state-default{
+        	height:60px;
+        	text-align:center;
+        	vertical-align:middle!important;;
+        	font-size: 14px;
+        	background-color: green;
+        	
+        }
+ 		.dataTables_filter{
+                     padding-left:-95px;//上移
+                    }
+        .dataTables_filter>label>input{
+         width:300px;
+        }
+        #listHistory_paginate{
+        	margin-top: 10px
+        }
+    </style>  
 
-</style>
-   
-	<div id="wrapper">
 
-		<nav class="navbar-default navbar-static-side" role="navigation">
-			<div class="sidebar-collapse">
-				<ul class="nav metismenu" id="side-menu">
-					<li class="nav-header">
-
-						<div class="logo-element">IN+</div>
-					</li>
-					<li><a href="index.jsp"><i class="fa fa-calendar-plus-o"></i>
-							<span class="nav-label">客户/联系人合并</span> </a></li>
-					<li><a href="listhistory.jsp"><i class="fa fa-list-alt"></i>
-							<span class="nav-label">客户/联系人合并记录</span></a></li>
-					<li><a href="assign.html"><i class="fa fa-list-alt"></i>
-							<span class="nav-label">变更客户对应销售员</span></a></li>
-					
-
-				</ul>
-
-			</div>
-		</nav>
-
-		<div id="page-wrapper" class="gray-bg">
-			<div class="row border-bottom">
-				<nav class="navbar navbar-static-top" role="navigation"
-					style="margin-bottom: 0">
-					<div class="navbar-header">
-						<a class="navbar-minimalize minimalize-styl-2 btn btn-primary "
-							href="#"><i class="fa fa-exchange"></i> </a>
-
-					</div>
-
-				</nav>
-			</div>
-			
-			<div class="row wrapper border-bottom white-bg page-heading">
-				<div class="col-lg-10">
-					<h2>合并客户/联系人</h2>
-				</div>
-			</div>
-			
-			<ul class="nav nav-tabs" id="myTab" role="tablist">
-			  <li class="nav-item">
-			    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">合并客户</a>
-			  </li>
-			  <li class="nav-item">
-			    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">合并联系人</a>
-			  </li>
-			</ul>
-		
-			
+  
 			
 			
 				
 			<div class="tab-content" id="myTabContent">
-				<!-- 客户合并页 -->
-	  			<div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-	  						<div class="wrapper wrapper-content  animated fadeInRight">
-							<div class="tab-pane active" id="tab-1">
-							<div class="panel-body">
-							
-							<div class="row">
-								<div class="col-lg-6">
-									<div class="ibox ">
-										<div class="ibox-title">
-											<h5>待合并客户</h5>
-										</div>
+          	<!-- 客户合并记录页 -->
+          	<div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+          			   <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="row">
+                <div class="col-lg-12">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
 
+                        </div>
+                    </div>
+                    <div class="ibox-content">
 
-										<div class="activity-stream">
-											<div class="ibox-content" style="height: 450px" id="tab1">
-
-												<div class="activity-stream">
-													<div class="panel-body">
-														<form class="form-inline">
-															<div class="form-group">
-																<label for="customerName">客户名称</label> <input
-																	id="search_kw" type="text" class="form-control ui-com "
-																	placeholder="请输入需要合并的客户名称" style="width: 450px"
-																	value="${custName }">
-															</div>
-															<div class="form-group">
-																<button type="button" class="btn btn-primary"
-																	id="oldCompany">加入</button>
-															</div>
-														</form>
-													</div>
-												</div>
-												<table class="table table-bordered table-striped" id="oldCompanyList">
-													<thead>
-														<tr>
-															<th width="20%">comID</th>
-															<th width="50%">客户名称</th>
-															<th width="15%">所属销售</th>
-															<th width="15%" align="center">操作</th>
-														</tr>
-													</thead>
-													<tbody>
-														<tr></tr>
-														<c:forEach items="${sessionScope.SourceList}" var="row">
-															<tr>
-																<td width="20%">${row.comID}</td>
-																<td width="50%">${row.companyname}</td>
-																<td width="15%">${row.csalesman}</td>
-																
-																<td width="15%" align="center">
-																	<button class="btn btn-danger btn-xs"
-																		onclick="removeSession('${row.comID}','oldCompanyList')">移除</button>
-																</td>
-															</tr>
-														</c:forEach>
-													</tbody>
-												</table>
-											</div>
-										</div>
-									</div>
-								</div>
-								<div class="col-lg-6">
-									<div class="iibox ">
-										<div class="ibox-title">
-											<h5>合并后新客户</h5>
-										</div>
-
-										<div class="ibox-content" style="height: 450px" >
-											<div class="activity-stream">
-												<div class="panel-body">
-													<form class="form-inline">
-														<div class="form-group">
-															<label for="customerName">客户名称</label> <input
-																id="search_kw_new" type="text"
-																class="form-control ui-com" placeholder="请输入合并后新客户名称"
-																value="${custName }" style="width: 450px">
-														</div>
-														<button type="button" class="btn btn-primary"
-															id="newCompany">加入</button>
-													</form>
-												</div>
-											</div>
-											<div class="activity-stream" id="tab1-1">
-												<table class="table table-bordered table-striped" id="newCompanyList">
-													<thead>
-														<tr>
-															<th>comID</th>
-															<th>客户名称</th>
-															<th>所属销售</th>
-															<th style="text-align:center">操作</th>
-														</tr>
-													</thead>
-													<tbody>
-														<tr></tr>
-														<c:forEach items="${sessionScope.TargetList}" var="row">
-															<tr>
-																<td width="20%" style='vertical-align: middle;'>${row.comID}</td>
-																<td width="45%" style='vertical-align: middle;'>${row.companyname}</td>
-																<td width="20%" style='vertical-align: middle;'>
-																	<select name="salesman" id="salesman" class="form-control">
-					
-																		<c:forEach items="${sessionScope.SalesList}" var="lst" varStatus="lststatus">
-																					  <option value="${lst}" selected>${lst}</option>
-																		</c:forEach>
-       																</select>
-																<td width="15%" align="center" style='vertical-align: middle;'>
-																	<button class="btn btn-danger btn-xs"
-																		onclick="removeSession('${row.comID}','newCompanyList')">移除</button>
-																</td>
-															</tr>
-														</c:forEach>
-													</tbody>
-												</table>
-											</div>
-										</div>
-
-								
-										<nav class="navbar navbar-static-top" role="navigation"
-											style="margin-bottom: 0">
-											<div class="navbar-header">
-												<button type="submit" class="btn btn-primary"   data-style="zoom-in"  id="btn_merge">开始合并</button>
-											</div>
-											
-											
-											
-											
-										</nav>
-
-									</div>
-								</div>
-							</div>
-							</div>
-
-						</div>
-
-				
-					</div>
-
-				</div>
-				<!-- 联系人合并页 -->
-				
-				
-	  			<div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-	  						  						<div class="wrapper wrapper-content  animated fadeInRight">
-							<div class="tab-pane active" id="tab-1">
-							<div class="panel-body">
-							
-							<div class="row">
-								<div class="col-lg-6">
-									<div class="ibox ">
-										<div class="ibox-title">
-											<h5>待合并联系人</h5>
-										</div>
-
-
-										<div class="activity-stream">
-											<div class="ibox-content" style="height: 450px" id="tab2" >
-
-												<div class="activity-stream">
-													<div class="panel-body">
-														<form class="form-inline">
-															<div class="form-group">
-																<label for="ContactName">联系人名称</label> <input
-																	id="search_Contact" type="text" class="form-control ui-com "
-																	placeholder="请输入需要合并的联系人名称" style="width: 450px"
-																	value="${name }">
-															</div>
-															<div class="form-group">
-																<button type="button" class="btn btn-primary"
-																	id="oldContact">加入</button>
-															</div>
-														</form>
-													</div>
-												</div>
-												<table class="table table-bordered table-striped"
-													id="oldContactList">
-													<thead>
-														<tr>
-															<th width="10%">contID</th>
-															<th width="20%">联系人名称</th>
-															<th width="60%">公司名称</th>
-															<th width="10%" style="text-align:center">操作</th>
-														</tr>
-													</thead>
-													<tbody>
-														<tr></tr>
-														<c:forEach items="${sessionScope.contactSourceList}" var="row">
-															<tr>
-																<td width="10%">${row.contID}</td>
-																<td width="20%">${row.name}</td>
-																<td width="60%">${row.companyname}</td>
-																<td width="10%" align="center">
-																	<button class="btn btn-danger btn-xs"
-																		onclick="removeSession('${row.contID}','oldContactList')">移除</button>
-																</td>
-															</tr>
-														</c:forEach>
-													</tbody>
-												</table>
-											</div>
-										</div>
-									</div>
-								</div>
-								<div class="col-lg-6">
-									<div class="iibox ">
-										<div class="ibox-title">
-											<h5>合并后新联系人</h5>
-										</div>
-
-										<div class="ibox-content" style="height: 450px">
-											<div class="activity-stream">
-												<div class="panel-body">
-													<form class="form-inline">
-														<div class="form-group">
-															<label for="contactName">联系人名称</label> <input
-																id="search_Contact_new" type="text"
-																class="form-control ui-com" placeholder="请输入合并后新联系人名称"
-																value="${name }" style="width: 450px">
-														</div>
-														<button type="button" class="btn btn-primary"
-															id="newContact">加入</button>
-													</form>
-												</div>
-											</div>
-											<div class="activity-stream" id="tab2" >
-												<table class="table table-bordered table-striped" id="newContactList">
-													<thead>
-														<tr>
-															<th width="10%">contID</th>
-															<th width="20%">联系人名称</th>
-															<th width="60%">公司名称</th>
-															<th width="10%" style="text-align:center">操作</th>
-														</tr>
-													</thead>
-													<tbody>
-														<tr></tr>
-														<c:forEach items="${sessionScope.contactTargetList}" var="row">
-															<tr>
-																<td width="10%">${row.contID}</td>
-																<td width="20%">${row.name}</td>
-																<td width="60%">${row.companyname}</td>
-																<td width="10%" align="center">
-																	<button class="btn btn-danger btn-xs"
-																		onclick="removeSession('${row.contID}','newContactList')">移除</button>
-																</td>
-															</tr>
-														</c:forEach>
-													</tbody>
-												</table>
-											</div>
-										</div>
-
-										<nav class="navbar navbar-static-top" role="navigation"
-											style="margin-bottom: 0">
-											<div class="navbar-header">
-												<button type="submit" class="btn btn-primary"   data-style="zoom-in"  id="btn_Contact_merge">开始合并</button>
-											</div>
-											
-											
-											
-											
-										</nav>
-
-
-									</div>
-								</div>
-							</div>
-							</div>
-
-						</div>
-
-				
-					</div>
-
-	  					
-	  			</div>
-	  		</div>
-
-
-				<!-- - -->
-				<div class="footer">
-					<div class="float-right">
-						<strong>Copyright </strong> © 2015 Target molecule Corp.
-					</div>
-
-				</div>
-
-			</div>
-		</div>
-
-
-
-		<!-- Mainly scripts -->
-		<script src="js/jquery-3.1.1.min.js"></script>
-		<script src="js/jquery-ui.min.js"></script>
-		<script src="js/popper.min.js"></script>
-		<script src="js/bootstrap.js"></script>
-		<script src="js/jquery.metisMenu.js"></script>
-		<script src="js/jquery.slimscroll.min.js"></script>
-
-		<script src="js/inspinia.js"></script>
-		<script src="js/pace.min.js"></script>
-		<!-- jQuery UI -->
-		<script src="js/jquery-ui.min.js"></script>
-		<!-- Sweet alert -->
-		<script src="js/sweetalert.min.js"></script>
-		<!-- Ladda -->
-	    <script src="js/spin.min.js"></script>
-	    <script src="js/ladda.min.js"></script>
-	    <script src="js/jquery-editable-select.js"></script>
-		<script src="js/jquerysession.js"></script>
-
-
-		<script type="text/javascript">
-			$('#editable-select').editableSelect();
-
-	        function selectOnChangeFunc() {
-	            document.getElementById('id_input').value = document.getElementById('id_select').options[document.getElementById('id_select').selectedIndex].value;
-	        }
-
-			jQuery(function($) {
-
-				$(document).ready(
-								function() {
-									(function() {
-											var insertOptions = function(data, id) {
-											var result = new Array();
-
-											if (id.indexOf("Contact") >= 0) {
-												for (var ii = 0, rr = data.length; ii < rr; ii++) {
-													result.push(data[ii].contID +"-" +$.trim(data[ii].name)+ "-"
-																	+ $.trim(data[ii].companyname));
-
-
-												}
-											} else {
-												for (var ii = 0, rr = data.length; ii < rr; ii++) {
-													var salesman="";
-													if(data[ii]['csalesman']!=null && data[ii]['csalesman']!="" ){
-														salesman="-"+data[ii]['csalesman'];
-													}
-													result.push(data[ii].comID
-																	+ "-"
-																	+ $.trim(data[ii].companyname)+salesman);
-												}
-											}
-											
-											$('#' + id).autocomplete({
-												source : result
-											});
-										};
-
-
-										$('#search_kw').keyup(function() {
-											getList("search_kw");
-										});
-
-										$('#search_kw_new').keyup(function() {
-											getList("search_kw_new");
-										});
-
-										$('#search_Contact').keyup(function() {
-											getList("search_Contact");
-										});
-
-										$('#search_Contact_new')
-												.keyup(
-														function() {
-															getList("search_Contact_new");
-														});
-
-										function getList(right_id) {
-											
-											var $url = null;
-											var skeyword = null;
-											var key = null;
-											if (right_id.indexOf("Contact") >= 0) {
-												$url = "${pageContext.request.contextPath}/searchContact.action";
-												skeyword = JSON.stringify({'name' : $("#" + right_id).val().trim()
-												});
-												key = 'listContact';
-											} else {
-												$url = "${pageContext.request.contextPath}/searchCompany.action";
-												skeyword = JSON.stringify({'companyname' : $("#" + right_id).val().trim()
-												});
-												key = 'listCompany';
-											}
-											$.ajax({
-														type : "post",
-														url : $url,
-														processData : false,
-														contentType : "application/json;charset=utf-8",
-														data : skeyword,
-														cache : false,
-														success : function(data) {
-
-															insertOptions(data[key],right_id);
-
-														}
-
-													});
-										}
-
-										function refreshCompanyList(data,tablekey) {
-											$("#" + tablekey).empty();
-											if(tablekey.indexOf('Contact')>0){
-												$("#" + tablekey).append('<thead><tr><th width="10%">contID</th><th width="20%">联系人名称</th><th width="60%">公司名称</th><th width="10%" style="text-align:center">操作</th></tr></thead><tr></tr>');
-												if(data!=null){
-													for (var i = 0; i < data.length; i++) {
-														var trHTML = '<tr ><td>'
-																+ data[i].contID
-																+ '</td><td>'
-																+ data[i].name
-																+ '</td><td>'
-																+ data[i].companyname
-																+ '</td><td align="center">'
-																+ '<button class="btn btn-danger btn-xs" onclick="removeSession(&#39;'
-																+ data[i].contID.trim()
-																+ '&#39;,&#39;'+tablekey+'&#39;)">移除</button>'
-																+ '</td></tr>';
-														$("#" + tablekey).append(trHTML);
-														}
-													height=$("#" + tablekey)[0].offsetHeight+100;
-													if(height>=415){
-														$("#tab2").height(height);
-													}else if(height<415){
-														$("#tab2").height(415);
-
-													}
+                    <div class="table-responsive">
+                    <table class="table table-striped table-bordered table-hover table-border dataTables-example" id="listHistory"  >
+                    <thead>
+                    <tr>
+                        <th class="center">cpdid</th>
+                        <th class="center">synonym</th>
+                        <th class="center">name</th>
+                        <th class="center">description</th>
+                        <th class="center">vitro</th>
+                        <th class="center">vivo</th>
+                 
+                    </tr>
+                    </thead>
+                    <tbody>
  
-													}
-											}else{
-												sdata=data.salesList;
-												if(tablekey=="oldCompanyList"){
-													$("#" + tablekey).append('<thead><tr><th width="20%">comID</th><th width="50%">客户名称</th><th width="15%">所属销售</th><th width="15%" style="text-align:center">操作</th></tr></thead><tr></tr>');
-													data=data.sourceCompanyList;
+                    
+                    </tbody>
+                   
+                    </table>
+                        </div>
 
-												}else{
-													$("#" + tablekey).append('<thead><tr><th width="20%">comID</th><th width="45%">客户名称</th><th width="20%">所属销售</th><th width="15%" style="text-align:center">操作</th></tr></thead><tr></tr>');
-													data=data.targetCompanyList;
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+          			
+          	
+          	</div>
+          	
+     
+
+          	
+          	
+          	</div>
+               		 
+             <div class="footer">
+           	 <div class="float-right">
+                 <strong>Copyright </strong>  © 2015 Target molecule Corp.            </div>
+            </div>
+       
+
+    
+
+    <!-- Mainly scripts -->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/jquery.metisMenu.js"></script>
+    <script src="js/jquery.slimscroll.min.js"></script>
 	
-												}
-												if(data!=null ){
-													for (var i = 0; i < data.length; i++) {
-														var salesman='';
-														if(data[i].csalesman!=null){
-															salesman=data[i].csalesman ;
-														}
-														if(tablekey=="oldCompanyList"){
-															var trHTML = '<tr ><td>'
-																+ data[i].comID
-																+ '</td><td>'
-																+ data[i].companyname
-																+ '</td><td>'
-																+ salesman
-																+ '</td><td align="center">'
-																+ '<button class="btn btn-danger btn-xs" onclick="removeSession(&#39;'
-																+ data[i].comID.trim()
-																+ '&#39;,&#39;'+tablekey+'&#39;)">移除</button>'
-																+ '</td></tr>';
-														}else{
-																	trHTML = '<tr ><td>'+ data[i].comID+ '</td><td>'+ data[i].companyname+ '</td><td>'+ '<select name="salesman" id="salesman" class="form-control">';
-																	
-																	 for(var ii=0;ii<sdata.length;ii++ ){
-																			trHTML=trHTML+'<option value='+sdata[ii]+' selected>'+sdata[ii]+'</option>';
-																		}
-																		trHTML=trHTML+ '</select>'
-																		+ '</td><td align="center">'
-																		+ '<button class="btn btn-danger btn-xs" onclick="removeSession(&#39;'
-																		+ data[i].comID.trim()
-																		+ '&#39;,&#39;'+tablekey+'&#39;)">移除</button>'
-																		+ '</td></tr>';
-														}
-															
-														
-														
-														$("#" + tablekey).append(trHTML);
-
-														}
-													height=$("#" + tablekey)[0].offsetHeight+100;
-													if(height>=415){
-														$("#tab1").height(height);
-													}else if(height<415){
-														$("#tab1").height(415);
-
-													}
-
-													}
-											}
-											
-
-										}
-										
-
-										$('#oldCompany').click(function() {
-															var $url = "${pageContext.request.contextPath}/addSourceList.action";
-															var key = $('#search_kw').val();
-															key = key.substring(0,key.indexOf("-"));
-
-															$.ajax({
-																		type : "post",
-																		url : $url,
-																		contentType : "application/json;charset=utf-8",
-																		dataType : 'json',
-																		data : JSON.stringify({'comID' : key}),
-																		success : function(data) {
-																				refreshCompanyList(data,'oldCompanyList');
-																				refreshCompanyList(data,'newCompanyList');
-																				$("#search_kw").val("");
-																		}
-																	});
-														});
-
-										$('#newCompany').click(function() {
-															var $url = "${pageContext.request.contextPath}/addTargetList.action";
-															var key = $('#search_kw_new').val();
-															key = key.substring(0,key.indexOf("-"));
-															$.ajax({
-																		type : "post",
-																		url : $url,
-																		contentType : "application/json;charset=utf-8",
-																		dataType : 'json',
-																		data : JSON
-																				.stringify({'comID' : key}),
-																		success : function(data) {
-																			refreshCompanyList(data,'newCompanyList');
-																			$("#search_kw_new").val("");
-
-																		}
-																	});
-														});
-
-										$('#oldContact').click(
-														function() {
-															var $url = "${pageContext.request.contextPath}/addContactSourceList.action";
-															var key = $('#search_Contact').val();
-															key = key.substring(0,key.indexOf("-"));
-															$.ajax({
-																		type : "post",
-																		url : $url,
-																		contentType : "application/json;charset=utf-8",
-																		dataType : 'json',
-																		data : JSON.stringify({'contID' : key}),
-																		success : function(data) {
-																			refreshCompanyList(data,'oldContactList');
-																			$("#search_Contact").val("");
-
-																			}
-
-																		
-																	});
-														});
-
-										$('#newContact').click(
-														function() {
-															var $url = "${pageContext.request.contextPath}/addContactTargetList.action";
-															var key = $(
-																	'#search_Contact_new')
-																	.val();
-															key = key.substring(0,key.indexOf("-"));
-															$.ajax({
-																		type : "post",
-																		url : $url,
-																		contentType : "application/json;charset=utf-8",
-																		dataType : 'json',
-																		data : JSON.stringify({'contID' : key}),
-																		success : function(
-																				data) {console.log(data);
-																				refreshCompanyList(data,'newContactList');
-																				$("#search_Contact_new").val("");
-
-																		}
-																	});
-														});
-
-										removeSession = function(com, tablename) {
-											
-											var $url =null
-											var session = "";
-											switch (tablename) {
-											case "oldCompanyList":
-												$url= "${pageContext.request.contextPath}/removeCompanySession.action";
-												session = "SourceList";
-												break;
-											case "newCompanyList":
-												$url= "${pageContext.request.contextPath}/removeCompanySession.action";
-												session = "TargetList";
-												break;
-											case "oldContactList":
-												$url= "${pageContext.request.contextPath}/removeContactSession.action";
-												session = "contactSourceList";
-												break;
-											case "newContactList":
-												$url= "${pageContext.request.contextPath}/removeContactSession.action";
-												session = "contactTargetList";
-												break;
-											}
-
-
-											$.ajax({
-														type : "post",
-														url : $url,
-														contentType : "application/json;charset=utf-8",
-														dataType : 'json',
-														data : JSON.stringify({
-																	'comID' : com,
-																	'sessionName' : session
-																}),
-														success : function(data) {
-															refreshCompanyList(data,'oldCompanyList');
-															
-															refreshCompanyList(data,'newCompanyList');
-
-														}
-													});
-
-										}
-
-						
-										$('#btn_merge').click(function() {
-										
-											var l = Ladda.create(this);
-
-											var url = "${pageContext.request.contextPath}/mergeCompany";
-											var url1 = "${pageContext.request.contextPath}/updateSales";
-
-											var title='<tr><th width="20%">comID</th><th width="50%">客户名称</th><th width="15%">所属销售</th><th width="15%" style="text-align:center">操作</th></tr>'
-																						
-											var list="<%=session.getAttribute("SalesList")%>";
-											var tlist="<%=session.getAttribute("TargetList")%>";
-											if($('#salesman').val().trim()==null || $('#salesman').val().trim()==""){
-												alert("请选择销售");
-												return false
-											}
-											
-											 merge(url,title,"CompanyList",l);
-												
-											
-											return false;
+    <script src="js/inspinia.js"></script>
+    <script src="js/pace.min.js"></script>
+    <!-- jQuery UI -->
+    <script src="js/jquery-ui.min.js"></script>
+    <!-- Sweet alert -->
+    <script src="js/sweetalert.min.js"></script>
+    <script src="js/jquery.metisMenu.js"></script>
+    <script src="js/jquery.slimscroll.min.js"></script>
 	
-										});
-										
-										$('#btn_Contact_merge').click(function() {												
-											var l = Ladda.create(this);
+	
+    <script src="js/highlight1.js"></script>
+    <script type="text/javascript" language="javascript" src="http://cdn.datatables.net/1.10-dev/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" language="javascript" src="http://cdn.datatables.net/plug-ins/28e7751dbec/integration/jqueryui/dataTables.jqueryui.js"></script>
+	<script src="js/spin.min.js"></script>
+	<script src="js/ladda.min.js"></script>
 
-											var url = "${pageContext.request.contextPath}/mergeContact.action";
-											var title='<tr><th width="30%">contID</th><th width="50%">联系人名称</th><th width="20%" style="text-align:center">操作</th></tr>'
 
-											merge(url,title,"Contact",l);
-											return false;
-										});
-										
-										
-										var updateSales=function($url,$comID,$salesname){
-											
-										}
-										var merge =function($url,$title,$tab,l){
-											
-											l.start();
-											$('#loadingModal').modal({
-												backdrop : "static",
-												keyboard : false
-												});
-											var key="sales="+$('#salesman').val().trim();
-											
-										$.ajax({type : "GET",
-											url : $url,
-											processData : false,
-											contentType : "application/json;charset=utf-8",
-											dataType : 'json',
-											data : key,
-											success : function(data) {
-												l.stop();
-												if (data["code"] == 0) {
-													swal({title : " ",
-														  text : data['message'],
-														  type : "success"},
-														  function() {
 
-																$("table[id*='"+$tab+"']").empty();
-																$("table[id*='"+$tab+"']").append($title);
-															});} else {
-													swal({
-														title : " ",
-														text : data['message'],
-														type : "error",
-														closeOnConfirm : false});}
-													},
-											error : function(e) {
-												l.stop();
+<script type="text/javascript">
+jQuery(function ($) {
+	$(document).ready(function () {
 
-					
-												swal({
-													title : "",
-													text : e,
-													type : "error",
-													closeOnConfirm : false
-												});
-											}
-										});
-										
-										}
-									})();
-								});
-			});
-		</script>
+ var initTable=function(){
+	 var dt=[];
+	 var t ;
+	 
+	 var table= $('#listHistory').DataTable({
+		  bDeferRender:false,
+		  data:dt,
+          pageLength: 25,
+          responsive: false,
+          dom: '<"html5buttons"B>lTfgitp',
+          bAutoWidth:false,
+          bLengthChange: true,
+          bInfo: false,
+          bFilter: true,
+          stripeClasses: [ 'mystrip2', 'mystrip1'],
+          language: {
+              "sProcessing": "处理中...",
+              "sLengthMenu": "每页 _MENU_ 条记录",
+              "sZeroRecords": "没有匹配结果",
+              "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+              "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
+              "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+              "sInfoPostFix": "",
+              "sSearch": "搜索:",
+              "sUrl": "",
+              "sEmptyTable": "表中数据为空",
+              "sLoadingRecords": "载入中...",
+              "sInfoThousands": ",",
+              "oPaginate": {
+                  "sFirst": "首页",
+                  "sPrevious": "上页",
+                  "sNext": "下页",
+                  "sLast": "末页"
+              },
+              "oAria": {
+                  "sSortAscending": ": 以升序排列此列",
+                  "sSortDescending": ": 以降序排列此列"
+              }
+              
+
+          },
+          buttons: [
+   
+              {extend: 'print',
+               customize: function (win){
+                      $(win.document.body).addClass('white-bg');
+                      $(win.document.body).css('font-size', '14px');
+	                      $(win.document.body).find('table')
+                              .addClass('compact')
+                              .css('font-size', 'inherit');
+              }
+              }
+          ]
+
+         
+      });
+	
+	 
+	 var table1= $('#listContactHistory').DataTable({
+		  bDeferRender:false,
+		  data:dt,
+         pageLength: 25,
+         responsive: false,
+         dom: '<"html5buttons"B>lTfgitp',
+         bAutoWidth:false,
+         bLengthChange: true,
+         bInfo: false,
+         bFilter: true,
+         stripeClasses: [ 'mystrip2', 'mystrip1'],
+         language: {
+             "sProcessing": "处理中...",
+             "sLengthMenu": "每页 _MENU_ 条记录",
+             "sZeroRecords": "没有匹配结果",
+             "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+             "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
+             "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+             "sInfoPostFix": "",
+             "sSearch": "搜索:",
+             "sUrl": "",
+             "sEmptyTable": "表中数据为空",
+             "sLoadingRecords": "载入中...",
+             "sInfoThousands": ",",
+             "oPaginate": {
+                 "sFirst": "首页",
+                 "sPrevious": "上页",
+                 "sNext": "下页",
+                 "sLast": "末页"
+             },
+             "oAria": {
+                 "sSortAscending": ": 以升序排列此列",
+                 "sSortDescending": ": 以降序排列此列"
+             }
+             
+
+         },
+         buttons: [
+  
+             {extend: 'print',
+              customize: function (win){
+                     $(win.document.body).addClass('white-bg');
+                     $(win.document.body).css('font-size', '14px');
+	                      $(win.document.body).find('table')
+                             .addClass('compact')
+                             .css('font-size', 'inherit');
+             }
+             }
+         ]
+
+        
+     });
+	 table.on('draw', function () {
+		
+         var body = $(table.table().body());
+         body.unhighlight();
+         body.highlight(table.search());
+     });
+	 table1.on('draw', function () {
+			
+         var body = $(table1.table().body());
+         body.unhighlight();
+         body.highlight(table1.search());
+     });
+	 
+ };
+ 
+ 
+	  
+	  refreshCompanyTable();
+	  initTable();
+});  
+});
+function refreshCompanyTable(){
+	 var $listurl="${pageContext.request.contextPath}/listhistory.action";
+	 var key =JSON.stringify({});
+
+	 $.ajax({
+	     	type: "post",
+	         url:  $listurl,
+	         contentType:"application/json;charset=utf-8",
+	         data : key,
+	         success: function(dg) {
+	        	var data=dg['data'];
+
+				 t = $('#listHistory').DataTable();
+				 $('#listHistory').dataTable().fnClearTable(this); 				 
+				for(var ii=0,rr=data.length;ii<rr;ii++){    
+					  console.log(data[ii]);
+					  t.row.add( [
+								data[ii]['creatime'],
+								data[ii]['companyID_Old'],
+								data[ii]['companyName_Old'],
+								data[ii]['oldSalesman'],
+								data[ii]['companyID_New'],
+								data[ii]['companyName_New'],
+								data[ii]['newSalesman'],
+								'<button  class="btn btn-danger btn-xs"  data-style="zoom-out" id="cpbtn'+ii+'" type="button" onclick="resumeCompany('+data[ii]['autoID']+',&#39;cpbtn'+ii+'&#39;);return false">还原</button>'
+								
+					        ] ).draw();
+			
+	           		
+	        		 }
+				
+	         	
+	             }
+
+	         });
+	
+}
+
+function refreshContactTable(){
+	 var $listurl="${pageContext.request.contextPath}/listContacthistory.action";
+	 var key =JSON.stringify({});
+
+	 $.ajax({
+	     	type: "post",
+	         url:  $listurl,
+	         contentType:"application/json;charset=utf-8",
+	         data : key,
+	         success: function(dg) {
+	        	var data=dg['data'];
+
+				 t = $('#listContactHistory').DataTable();
+				 $('#listContactHistory').dataTable().fnClearTable(this); 				 
+				for(var ii=0,rr=data.length;ii<rr;ii++){    
+					  console.log(data[ii]);
+					  t.row.add( [
+								data[ii]['creatime'],
+								data[ii]['contactID_Old'],
+								data[ii]['contactName_Old'],
+								data[ii]['companyName_Old'],
+								data[ii]['contactID_New'],
+								data[ii]['contactName_New'],
+								data[ii]['companyName_New'],
+								'<button  class="btn btn-danger btn-xs"  data-style="zoom-out" id="ctbtn'+ii+'" type="button" onclick="resumeContact('+data[ii]['autoID']+',&#39;ctbtn'+ii+'&#39;)">还原</button>'
+								
+					        ] ).draw();
+			
+	           		
+	        		 }
+				
+	         	
+	             }
+
+	         });
+	
+}
+function resumeCompany(id,bt){
+	 var l = Ladda.create( document.querySelector( '#'+bt ) );
+	 var $url="${pageContext.request.contextPath}/resumeCompany.action";
+	 var $key=JSON.stringify({"autoID":id});
+	 l.start();
+	  $.ajax({
+     	type: "post",
+         url:  $url,
+         contentType:"application/json;charset=utf-8",
+         dataType : 'json',
+			data:$key,
+         success: function(data) {
+        	 	l.stop();
+         		if(data["code"]==0){
+             	   swal({
+                        title:" ",
+                        text: data['message'],
+	                	   type: "success"
+             	   }, function () {
+             		   //window.location.reload()
+             		 refreshCompanyTable();
+                    });
+         	   }else{
+         		   swal({
+                        title:" " ,
+                        text: data['message'],
+	                	   type: "error",
+	                	   closeOnConfirm: false
+             	   });
+         	   }
+          	
+             },
+         error:function(e){
+        	 l.stop();
+         	swal({
+                 title:" " ,
+                 text: e.printStackTrace,
+             	   type: "error",
+             	   closeOnConfirm: false
+      	   });                 }
+         
+         });
+
+}
+
+function resumeContact(id,bt){
+	var l = Ladda.create( document.querySelector( '#'+bt ) );
+	 l.start();
+	 var $url="${pageContext.request.contextPath}/resumeContact.action";
+	 var $key=JSON.stringify({"autoID":id});
+	  $.ajax({
+    	type: "post",
+        url:  $url,
+        contentType:"application/json;charset=utf-8",
+        dataType : 'json',
+			data:$key,
+        success: function(data) {
+        	l.stop();
+        		if(data["code"]==0){
+            	   swal({
+                       title:" ",
+                       text: data['message'],
+	                	   type: "success"
+            	   }, function () {
+            		   //window.location.reload()
+            		 refreshContactTable();
+                   });
+        	   }else{
+        		   swal({
+                       title:" " ,
+                       text: data['message'],
+	                	   type: "error",
+	                	   closeOnConfirm: false
+            	   });
+        	   }
+         	
+            },
+        error:function(e){
+    		l.stop();
+        	swal({
+                title:" " ,
+                text: e.printStackTrace,
+            	   type: "error",
+            	   closeOnConfirm: false
+     	   });                 }
+        
+        });
+
+}
+</script>
+
 </body>
 
 </html>
