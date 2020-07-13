@@ -2,7 +2,9 @@ package com.hzg.controller;
 
 import com.hzg.entity.cpd_biological;
 import com.hzg.service.ElkService;
+import com.hzg.vo.ResultPage;
 import com.hzg.vo.result;
+import com.sun.corba.se.spi.orbutil.fsm.Guard.Result;
 
 import java.util.List;
 
@@ -21,12 +23,36 @@ public class elkController {
 		private ElkService elkService;
 	  	@RequestMapping("/elkSearchBykey")
 	    @ResponseBody
-	    public AggregatedPage<Object> search(@RequestParam(value = "type", required = true) String type ,
+	    public ResultPage search(@RequestParam(value = "type", required = true) String type ,
 	    								   @RequestParam(value = "key", required = true) String key ,
 	    		  						   @RequestParam(value = "page", required = false) Integer page,
-	    	 					     	   @RequestParam(value="pageSize", required = false) Integer pageTotal)  {
+	    	 					     	   @RequestParam(value="pagesize", required = false) Integer pageSize,
+	    								   @RequestParam(value="area", required = false) String area,
+	    								   @RequestParam(value="fuzzy", required=false) Integer fuzzy
+	    								   ){
 
-	  		AggregatedPage<Object> result=elkService.findByKey(type, key, page, pageTotal);
+	  		if(page==null){
+	    		page=1;
+	    	}
+	    	if(pageSize==null){
+	    		pageSize=30;
+	    	}
+	    	if(fuzzy==null){
+	    		fuzzy=0;
+	    	}
+	    		
+	  		AggregatedPage<Object> pg=elkService.findByKey(type, key, page-1, pageSize,area,fuzzy);
+	  		ResultPage result=new ResultPage();
+	  		result.setContent(pg.getContent());
+	  		result.setNumberOfElements(pg.getNumberOfElements());
+	  		result.setTotalElements(pg.getTotalElements());
+	  		result.setPage(page);
+	  		if( pageSize>0&& pg.getTotalElements()>0){
+	  		result.setTotalPages((int)Math.ceil((double)pg.getTotalElements()/pageSize));
+	  		}else
+	  		{
+	  			result.setTotalPages(0);
+	  		}
 	    	return result;
 	    } 
 	  	
@@ -35,9 +61,7 @@ public class elkController {
 	    public result remove(@RequestParam(value = "type", required = true) String type ,
 	    								   @RequestParam(value = "id", required = true) String idx)  {
 
-	    	Integer code=elkService.removeByID(type,idx);
-	    	result rs=new result();
-	    	rs.setCode(code);
+	  		result rs=elkService.removeByID(type,idx);
 	    	return rs;
 	    } 
 

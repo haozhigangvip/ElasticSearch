@@ -75,17 +75,17 @@ public class page_detail {
 	@Id
     @Field(type=FieldType.Integer,store=true)
     private Integer id;
-    @Field(type=FieldType.Integer,store=true)
+    @Field(type=FieldType.text,store=true)
     private String urid;
-    @Field(type=FieldType.text,store=true,analyzer="ik_smart")
+    @Field(type=FieldType.text,store=true)
     private String dtext;
-    @Field(type=FieldType.text,store=true,analyzer="ik_smart")
+    @Field(type=FieldType.text,store=true)
     private String engname;
-    @Field(type=FieldType.text,store=true,analyzer="ik_smart")
+    @Field(type=FieldType.text,store=true,analyzer="ik_max_word")
     private String cnname;
-    @Field(type=FieldType.text,store=true,analyzer="ik_smart")
+    @Field(type=FieldType.text,store=true)
     private String engdsp;
-    @Field(type=FieldType.text,store=true,analyzer="ik_smart")
+    @Field(type=FieldType.text,store=true,analyzer="ik_max_word")
     private String cndsp;
 	@Override
 	public String toString() {

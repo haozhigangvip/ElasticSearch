@@ -1,53 +1,45 @@
 package com.hzg.service;
 
+import com.hzg.entity.bio;
+import com.hzg.entity.compound;
 import com.hzg.entity.cpd_biological;
 import com.hzg.entity.page_block;
 import com.hzg.entity.page_detail;
+import com.hzg.entity.product;
+import com.hzg.es.repository.bioDao;
+import com.hzg.es.repository.compoundDao;
 import com.hzg.es.repository.cpd_biologicalDAO;
 import com.hzg.es.repository.page_blockDao;
 import com.hzg.es.repository.page_detailDao;
+import com.hzg.es.repository.productDao;
 import com.hzg.vo.EsConstant;
+import com.hzg.vo.result;
 
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.apache.lucene.queries.function.FunctionScoreQuery;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
-import org.apache.commons.collections.map.HashedMap;
-import org.apache.jasper.tagplugins.jstl.core.ForEach;
-import org.elasticsearch.common.lucene.search.function.FunctionScoreQuery;
+import org.elasticsearch.common.lucene.search.function.CombineFunction;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.Operator;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder.Type;
-import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
-import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder.Field;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.aggregation.impl.AggregatedPageImpl;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.SearchResultMapper;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-
-
 import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.util.StringUtils;
-
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -60,6 +52,12 @@ public class ElkServiceImpl implements ElkService{
 	private  page_blockDao pgblockDao;
 	@Autowired
 	private  page_detailDao pgdetailDao;
+	@Autowired
+	private  productDao productdao;
+	@Autowired
+	private  bioDao biodao;
+	@Autowired
+	private  compoundDao compDao;
 	
 	//将xml中配置elasticsearch模板注解进来
 	@Autowired
@@ -69,8 +67,10 @@ public class ElkServiceImpl implements ElkService{
 	
 	
 	@Override
-	public Integer removeByID(String type, String idx){
-		Integer rs=0;
+	public result removeByID(String type, String idx){
+		result  rs=new result();
+		rs.setCode(0);
+		rs.setMessage("删除成功");
 		if(type!=null && idx!=null)
 		{
 			try {
@@ -90,15 +90,33 @@ public class ElkServiceImpl implements ElkService{
 					pgdetailDao.deleteById(Integer.valueOf(idx));
 
 					break;
+				case "product":
+					productdao.deleteById(Integer.valueOf(idx));
+
+					break;
+				case "bio":
+					biodao.deleteById(Integer.valueOf(idx));
+					break;
+				case "compound":
+					List<compound > lst=compDao.findBycpdid(idx);
+					if(lst!=null){
+						for (compound comp : lst) {
+							compDao.deleteById(comp.getId());;
+						}
+					}
+					break;
 				}
+				
 			} catch (Exception e) {
 				// TODO: handle exception
-				rs=1;
+				rs.setCode(1);
+				rs.setMessage(e.getMessage());
 			}
 		
 		}else
 		{
-			rs=1;
+			rs.setCode(1);
+			rs.setMessage("无效的索引库");
 		}
 		
 		
@@ -113,19 +131,14 @@ public class ElkServiceImpl implements ElkService{
 	
 	@SuppressWarnings("unchecked")
 	@Override
-    public AggregatedPage<Object> findByKey(String type,String key,Integer page,Integer pageNumic){
+    public AggregatedPage<Object> findByKey(String type,String key,Integer page,Integer pageNumic,String area,Integer fuzzy){
     	BoolQueryBuilder qb=null;
 		NativeSearchQueryBuilder searchQuery= new NativeSearchQueryBuilder();
 
 		AggregatedPage pages=null;
-    	if(page==null){
-    		page=0;
-    	}
-    	if(pageNumic==null){
-    		pageNumic=20;
-    	}
+    	
 		searchQuery.withIndices(EsConstant.INDEX_NAME.CPDBIOLOGICAL);
-	
+		QueryBuilder  queryBuilder=null;
 		final List<String>   highlightFields = new ArrayList<String>();
 		
 		Class classx=null;
@@ -140,57 +153,207 @@ public class ElkServiceImpl implements ElkService{
 	    	 .should(QueryBuilders.matchPhraseQuery("vitro",key).boost(3.0f))
 	    	 .should(QueryBuilders.matchPhraseQuery("vivo",key).boost(2.0f))
 	    	 .should(QueryBuilders.matchPhraseQuery("description",key).boost(1.0f))
-	    	 .should(QueryBuilders.matchPhraseQuery("cpdid",key).boost(0.5f))
 	    	 .should(QueryBuilders.matchPhraseQuery("synonym",key).boost(5.0f));
 			
-			highlightFields.add("cpdid");
 			highlightFields.add("name");
 			highlightFields.add("vitro");
 			highlightFields.add("vivo");
 			highlightFields.add("description");
 			highlightFields.add("synonym");
 			classx=cpd_biological.class;
+			break;
+		case "bio":
+			qb= QueryBuilders.boolQuery()
+	    	 .should(QueryBuilders.matchPhraseQuery("target",key).boost(4.0f));
+	    	
+			
+			highlightFields.add("target");
+			highlightFields.add("urid");
+			highlightFields.add("ttid");
+			
+			classx=bio.class;
 			break;	
 		case "page_block":
-			qb= QueryBuilders.boolQuery()
-	    	 .should(QueryBuilders.matchQuery("name",key).boost(5.0f))
-	    	 .should(QueryBuilders.matchQuery("vitro",key).boost(4.0f))
-	    	 .should(QueryBuilders.matchQuery("vivo",key).boost(3.0f))
-	    	 .should(QueryBuilders.matchQuery("description",key).boost(2.0f))
-	    	 .should(QueryBuilders.matchQuery("dte",key).boost(1.0f));
+			if(area!=null && area.trim().equals("china")){
+				if(fuzzy==0){
+				qb= QueryBuilders.boolQuery()
+				    	 .should(QueryBuilders.matchPhraseQuery("cnname",key).boost(5.0f))
+				    	 .should(QueryBuilders.matchPhraseQuery("engname",key).boost(4.0f))
+				    	 .should(QueryBuilders.matchPhraseQuery("cndsp",key).boost(3.0f))
+				    	 .should(QueryBuilders.matchPhraseQuery("engdsp",key).boost(2.0f));
+				}else{
+					qb= QueryBuilders.boolQuery()
+					    	 .should(QueryBuilders.matchQuery("cnname",key).boost(5.0f))
+					    	 .should(QueryBuilders.matchQuery("engname",key).boost(4.0f))
+					    	 .should(QueryBuilders.matchQuery("cndsp",key).boost(3.0f))
+					    	 .should(QueryBuilders.matchQuery("engdsp",key).boost(2.0f));
+				}
+						highlightFields.add("cnname");
+						highlightFields.add("engname");
+						highlightFields.add("cndsp");
+						highlightFields.add("engdsp");
+			}else{
+				if(fuzzy==0){
+					qb= QueryBuilders.boolQuery()
+					    	 .should(QueryBuilders.matchPhraseQuery("engname",key).boost(4.0f))
+					    	 .should(QueryBuilders.matchPhraseQuery("engdsp",key).boost(2.0f));
+				}else{
+					qb= QueryBuilders.boolQuery()
+					    	 .should(QueryBuilders.matchQuery("engname",key).boost(4.0f))
+					    	 .should(QueryBuilders.matchQuery("engdsp",key).boost(2.0f));
+				}
+						highlightFields.add("engname");
+						highlightFields.add("engdsp");
+			}
 			
-			highlightFields.add("name");
-			highlightFields.add("vitro");
-			highlightFields.add("vivo");
-			highlightFields.add("description");
-			highlightFields.add("dte");
 			classx=page_block.class;	
 			break;
 		case "page_detail":
-			qb= QueryBuilders.boolQuery()
-	    	 .should(QueryBuilders.matchQuery("cnname",key).boost(4.0f))
-	    	 .should(QueryBuilders.matchQuery("engname",key).boost(3.0f))
-	    	 .should(QueryBuilders.matchQuery("cndsp",key).boost(2.0f))
-	    	 .should(QueryBuilders.matchQuery("engdsp",key).boost(1.0f))
-	    	 .should(QueryBuilders.matchQuery("content",key).boost(5.0f));
-			
-			highlightFields.add("cnname");
-			highlightFields.add("engname");
-			highlightFields.add("cndsp");
-			highlightFields.add("engdsp");
-			highlightFields.add("content");
+			if(area!=null && area.trim().equals("china")){
+				if(fuzzy==0){
+					qb= QueryBuilders.boolQuery()
+					    	 .should(QueryBuilders.matchPhraseQuery("dtext",key).boost(5.0f))
+					    	 .should(QueryBuilders.matchPhraseQuery("cnname",key).boost(4.0f))
+					    	 .should(QueryBuilders.matchPhraseQuery("engname",key).boost(3.0f))
+					    	 .should(QueryBuilders.matchPhraseQuery("cndsp",key).boost(2.0f))
+					    	 .should(QueryBuilders.matchPhraseQuery("engdsp",key).boost(1.0f));
+				}else{
+					qb= QueryBuilders.boolQuery()
+					    	 .should(QueryBuilders.matchQuery("dtext",key).boost(5.0f))
+					    	 .should(QueryBuilders.matchQuery("cnname",key).boost(4.0f))
+					    	 .should(QueryBuilders.matchQuery("engname",key).boost(3.0f))
+					    	 .should(QueryBuilders.matchQuery("cndsp",key).boost(2.0f))
+					    	 .should(QueryBuilders.matchQuery("engdsp",key).boost(1.0f));
+				}
+						
+						highlightFields.add("dtext");
+						highlightFields.add("cnname");
+						highlightFields.add("engname");
+						highlightFields.add("cndsp");
+						highlightFields.add("engdsp");
+			}else{
+				if(fuzzy==0){
+					qb= QueryBuilders.boolQuery()
+					    	 .should(QueryBuilders.matchPhraseQuery("dtext",key).boost(5.0f))
+					    	 .should(QueryBuilders.matchPhraseQuery("engname",key).boost(3.0f))
+					    	 .should(QueryBuilders.matchPhraseQuery("engdsp",key).boost(1.0f));
+				}else{
+					qb= QueryBuilders.boolQuery()
+					    	 .should(QueryBuilders.matchQuery("dtext",key).boost(5.0f))
+					    	 .should(QueryBuilders.matchQuery("engname",key).boost(3.0f))
+					    	 .should(QueryBuilders.matchQuery("engdsp",key).boost(1.0f));
+				}
+						highlightFields.add("dtext");
+						highlightFields.add("engname");
+						highlightFields.add("engdsp");
+			}
 			classx=page_detail.class;	
 			break;
-		}
+		case "compound":
+			queryBuilder=null;
+			if(area!=null && area.trim().equals("china")){
+				if(fuzzy==0){
+					qb= QueryBuilders.boolQuery()
+							.must(QueryBuilders.termQuery("onshelfus",true))
+							.must(QueryBuilders.boolQuery()
+							 .should(QueryBuilders.matchPhraseQuery("name",key).boost(60.0f))
+						     .should(QueryBuilders.matchPhraseQuery("synonyms",key).boost(30.0f))
+					    	 .should(QueryBuilders.matchPhraseQuery("synonymseng",key).boost(20.0f))
+					    	 .should(QueryBuilders.matchPhraseQuery("description",key).boost(1.0f))
+					    	 .should(QueryBuilders.matchPhraseQuery("targets",key).boost(100.0f)));	
+							 
+				}else{
+					qb= QueryBuilders.boolQuery()
+							.must(QueryBuilders.termQuery("onshelfus",true))
+							.must(QueryBuilders.boolQuery()
+							 .should(QueryBuilders.matchQuery("name",key).boost(60.0f))
+						     .should(QueryBuilders.matchQuery("synonyms",key).boost(30.0f))
+					    	 .should(QueryBuilders.matchQuery("synonymseng",key).boost(20.0f))
+					    	 .should(QueryBuilders.matchQuery("description",key).boost(1.0f))
+					    	 .should(QueryBuilders.matchQuery("targets",key).boost(100.0f)));	
+				}
+						
+				
+				highlightFields.add("name");
+				highlightFields.add("synonyms");
+				highlightFields.add("synonymseng");	
+				highlightFields.add("description");
+				highlightFields.add("targets");
+			}else{
+				if(fuzzy==0){
+					qb=QueryBuilders.boolQuery()
+							.must(QueryBuilders.termQuery("onshelfus",true))
+							.must(QueryBuilders.boolQuery()
+							 .should(QueryBuilders.matchPhraseQuery("name",key).boost(60.0f))
+					    	 .should(QueryBuilders.matchPhraseQuery("synonymseng",key).boost(30.0f))
+					    	 .should(QueryBuilders.matchPhraseQuery("description",key).boost(20.0f))
+					    	 .should(QueryBuilders.matchPhraseQuery("targets",key).boost(100.0f)));
+				}else{
+					qb=QueryBuilders.boolQuery()
+							.must(QueryBuilders.termQuery("onshelfus",true))
+							.must(QueryBuilders.boolQuery()
+							 .should(QueryBuilders.matchQuery("name",key).boost(60.0f))
+					    	 .should(QueryBuilders.matchQuery("synonymseng",key).boost(30.0f))
+					    	 .should(QueryBuilders.matchQuery("description",key).boost(20.0f))
+					    	 .should(QueryBuilders.matchQuery("targets",key).boost(100.0f)));
+
+				}
+				highlightFields.add("name");
+				highlightFields.add("synonymseng");
+				highlightFields.add("description");
+				highlightFields.add("targets");
+			}
+			classx=compound.class;	
+			break;	
+		case "product":		
+			if(area!=null && area.trim().equals("china")){
+				if(fuzzy==0){
+					qb= QueryBuilders.boolQuery()
+							.must(QueryBuilders.termQuery("onshelfcn",true))
+							.must(QueryBuilders.boolQuery()
+							.should(QueryBuilders.matchPhraseQuery("cnname",key).boost(5.0f))
+							.should(QueryBuilders.matchPhraseQuery("engname",key).boost(4.0f)));
+				}else{
+					qb= QueryBuilders.boolQuery()
+							.must(QueryBuilders.termQuery("onshelfcn",true))
+							.must(QueryBuilders.boolQuery()
+							.should(QueryBuilders.matchQuery("cnname",key).boost(5.0f))
+							.should(QueryBuilders.matchQuery("engname",key).boost(4.0f)));
+				}
+								
+				highlightFields.add("cnname");
+				highlightFields.add("engname");
+						
+			}else{
+				if(fuzzy==0){
+					qb=QueryBuilders.boolQuery()
+							.must(QueryBuilders.termQuery("onshelfus",true))
+							.must(QueryBuilders.boolQuery()
+							.should(QueryBuilders.matchPhraseQuery("engname",key).boost(4.0f)));
+				}else{
+					qb=QueryBuilders.boolQuery()
+							.must(QueryBuilders.termQuery("onshelfus",true))
+							.must(QueryBuilders.boolQuery()
+							.should(QueryBuilders.matchQuery("engname",key).boost(4.0f)));
+				}
+
+				highlightFields.add("engname");
+			}
+			classx=product.class;	
+			break;	
+		}	
 	
     	
 		Pageable pg=PageRequest.of(page,pageNumic);
 	
 		searchQuery.withPageable(pg)
-                .withQuery(qb)
+                .withQuery(QueryBuilders.functionScoreQuery(qb).boostMode(CombineFunction.SUM))
+                .withSort(SortBuilders.fieldSort("hot").order(SortOrder.DESC))
                 .withSort(SortBuilders.scoreSort().order(SortOrder.DESC))
+              
                 .withHighlightFields(
-				 new HighlightBuilder.Field("*").preTags(EsConstant.HIGH_LIGHT_START_TAG).postTags(EsConstant.HIGH_LIGHT_END_TAG));
+				 new HighlightBuilder.Field("*").requireFieldMatch(false).preTags(EsConstant.HIGH_LIGHT_START_TAG).postTags(EsConstant.HIGH_LIGHT_END_TAG).fragmentSize(80000));
+	
 		
 				
 		pages=template.queryForPage(searchQuery.build(),classx,new SearchResultMapper(){
@@ -200,13 +363,18 @@ public class ElkServiceImpl implements ElkService{
 			public <T> AggregatedPageImpl<T> mapResults(SearchResponse response, Class<T> clazz, Pageable pageable) {
 				List<Map<String,Object>> list = new ArrayList<>();
 				SearchHits hits = response.getHits();
+				
 				for (SearchHit searchHit : hits) {
+				
+					Map<String,Object> mp=searchHit.getSourceAsMap();
+				
 					if (hits.getHits().length <= 0) {
 						return null;
 					}
 					
 					// 公共字段
                     Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
+                    
 
 					// 反射调用set方法将高亮内容设置进去
 					try {
@@ -217,8 +385,10 @@ public class ElkServiceImpl implements ElkService{
 							if(highlightFieldValue == null) {
 	                    		sourceAsMap.put(field, keyFieldValue);
 	                    	}else {
+	                    	 
 	                    		String hcontent = highlightFieldValue.fragments()[0].toString();//取值
 	                    		sourceAsMap.put(field, hcontent);
+	                    		
 	                    	}
 
 							
@@ -232,17 +402,19 @@ public class ElkServiceImpl implements ElkService{
 					}
 					list.add(sourceAsMap);
 				}
-
+				
+				
 				if (list.size() > 0) {
 					
-                    return new AggregatedPageImpl<T>((List<T>) list);
+                    return new AggregatedPageImpl<T>((List<T>) list,pageable,response.getHits().getTotalHits());
+				}else{
+					return new AggregatedPageImpl<T>( new ArrayList<T>());
 				}
-				return null;
 			}
 	 	
 	 });
 
-       
+				
     			return pages;
     }
     

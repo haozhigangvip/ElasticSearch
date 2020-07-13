@@ -35,17 +35,17 @@ public class cpd_biological {
     private Integer id;
     @Field(type=FieldType.text,store=true)
     private String cpdid;
-    @Field(type=FieldType.text,store=true,analyzer="ik_smart")
+    @Field(type=FieldType.text,store=true,analyzer="ik_max_word")
     private String description;
-    @Field(type=FieldType.text,store=true,analyzer="ik_smart")
+    @Field(type=FieldType.text,store=true,analyzer="ik_max_word")
     private String vitro;
-    @Field(type=FieldType.text,store=true,analyzer="ik_smart")
+    @Field(type=FieldType.text,store=true,analyzer="ik_max_word")
     private String vivo;
-    @Field(type=FieldType.text,store=true,analyzer="ik_smart")
+    @Field(type=FieldType.text,store=true,analyzer="ik_max_word")
     private String name;
     @Field(type=FieldType.text,store=true)
     private String urid;
-    @Field(type=FieldType.text,store=true,analyzer="ik_smart")
+    @Field(type=FieldType.text,store=true,analyzer="ik_max_word")
     private String synonym;
 	public Integer getId() {
 		return id;

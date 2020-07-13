@@ -26,7 +26,7 @@
                            http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
         <!-- spring 和 spring data jpa的配置 -->
         <!-- 1.创建entityManagerFactory 对象，交给spring容器管理-->
-        <elasticsearch:transport-client id="esClient" cluster-name="elasticsearch" cluster-nodes="192.168.3.13:9301,92.168.3.13:9302"/>
+        <elasticsearch:transport-client id="esClient" cluster-name="elasticsearch" cluster-nodes="192.168.3.13:9301,192.168.3.13:9302" />
                 <!-- 注入dataSource数据库连接池 -->
                             <!-- JPA供应商适配器，由谁实现JPA-->
                 

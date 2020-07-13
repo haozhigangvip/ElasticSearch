@@ -28,42 +28,42 @@ import java.sql.Timestamp;
  * @UpdateTimestamp 自动更新日期时间
  *
  */
-@Document(indexName="tsweb",type="page_block") 
-public class page_block {
+@Document(indexName="tsweb",type="product") 
+public class product {
     @Id
     @Field(type=FieldType.Integer,store=true)
     private Integer id;
     @Field(type=FieldType.text,store=true)
-    private String entity_id;
-    @Field(type=FieldType.text,store=true,analyzer="ik_max_word")
-    private String content;
+    private String tid;
+    @Field(type=FieldType.text,store=true)
+    private String category;
     @Field(type=FieldType.text,store=true)
     private String urid;
     @Field(type=FieldType.text,store=true)
     private String engname;
     @Field(type=FieldType.text,store=true,analyzer="ik_max_word")
     private String cnname;
-    @Field(type=FieldType.text,store=true)
-    private String engdsp;
-    @Field(type=FieldType.text,store=true,analyzer="ik_max_word")
-    private String cndsp;
+    @Field(type=FieldType.Boolean,store=true)
+    private boolean onshelfus;
+    @Field(type=FieldType.Boolean,store=true)
+    private String onshelfcn;
 	public Integer getId() {
 		return id;
 	}
 	public void setId(Integer id) {
 		this.id = id;
 	}
-	public String getEntity_id() {
-		return entity_id;
+	public String getTid() {
+		return tid;
 	}
-	public void setEntity_id(String entity_id) {
-		this.entity_id = entity_id;
+	public void setTid(String tid) {
+		this.tid = tid;
 	}
-	public String getContent() {
-		return content;
+	public String getCategory() {
+		return category;
 	}
-	public void setContent(String content) {
-		this.content = content;
+	public void setCategory(String category) {
+		this.category = category;
 	}
 	public String getUrid() {
 		return urid;
@@ -83,26 +83,25 @@ public class page_block {
 	public void setCnname(String cnname) {
 		this.cnname = cnname;
 	}
-	public String getEngdsp() {
-		return engdsp;
+	public boolean isOnshelfus() {
+		return onshelfus;
 	}
-	public void setEngdsp(String engdsp) {
-		this.engdsp = engdsp;
+	public void setOnshelfus(boolean onshelfus) {
+		this.onshelfus = onshelfus;
 	}
-	public String getCndsp() {
-		return cndsp;
+	public String getOnshelfcn() {
+		return onshelfcn;
 	}
-	public void setCndsp(String cndsp) {
-		this.cndsp = cndsp;
+	public void setOnshelfcn(String onshelfcn) {
+		this.onshelfcn = onshelfcn;
 	}
 	@Override
 	public String toString() {
-		return "page_block [id=" + id + ", entity_id=" + entity_id + ", content=" + content + ", urid=" + urid
-				+ ", engname=" + engname + ", cnname=" + cnname + ", engdsp=" + engdsp + ", cndsp=" + cndsp + "]";
+		return "product [id=" + id + ", tid=" + tid + ", category=" + category + ", urid=" + urid + ", engname="
+				+ engname + ", cnname=" + cnname + ", onshelfus=" + onshelfus + ", onshelfcn=" + onshelfcn + "]";
 	}
 
-    	
-
+    
 
 
 }
